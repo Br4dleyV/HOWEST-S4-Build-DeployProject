@@ -31,6 +31,7 @@ export class AmqpServices {
                     config.get('MESSAGING_LAVINMQ_VHOST'),
                     config.get('MESSAGING_LAVINMQ_USER'),
                     config.get('MESSAGING_LAVINMQ_PASS'),
+                    config.get('MESSAGING_LAVINMQ_URL'),
                 );
             return Promise.resolve(amqpBrokerConfigurator);
         };

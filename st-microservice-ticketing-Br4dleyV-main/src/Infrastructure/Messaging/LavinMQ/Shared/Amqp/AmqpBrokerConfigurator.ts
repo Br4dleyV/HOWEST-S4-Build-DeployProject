@@ -32,8 +32,10 @@ export class AmqpBrokerConfigurator {
         virtualHost: string,
         username: string,
         password: string,
+        connectionString?: string,
     ): Promise<AmqpBrokerConfigurator> {
-        const host = `amqp://${username}:${password}@${hostname}:${port}/${virtualHost}`;
+        const host = connectionString ||
+            `amqp://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${hostname}:${port}/${encodeURIComponent(virtualHost)}`;
         const asyncApiSpecification: ParseOutput = await this.parseAsyncAPIDocument(
             asyncApiSpecificationPath,
         );

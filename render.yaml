@@ -1,0 +1,100 @@
+# Portfolio deployment: four free web services; databases/broker are external.
+# Provider secrets are entered in Render, never committed here.
+services:
+  - type: web
+    name: br4dleyv-howestprime-movies
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: st-microservice-movies-Br4dleyV-main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Database__Provider
+        value: PostgreSQL
+      - key: Database__ConnectionString
+        sync: false
+      - key: MessageBroker__AsyncApiPath
+        value: asyncapi.yaml
+      - key: MessageBroker__ConnectionString
+        sync: false
+
+  - type: web
+    name: br4dleyv-howestprime-ticketing
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: st-microservice-ticketing-Br4dleyV-main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: WEBAPI_HOST
+        value: 0.0.0.0
+      - key: PERSISTENCE_MONGO_DB_URI
+        sync: false
+      - key: PERSISTENCE_MONGO_DB_DIRECT_CONNECTION
+        value: "false"
+      - key: MESSAGING_LAVINMQ_ASYNCAPI_PATH
+        value: config/asyncapi.yaml
+      - key: MESSAGING_LAVINMQ_URL
+        fromService:
+          type: web
+          name: br4dleyv-howestprime-movies
+          envVarKey: MessageBroker__ConnectionString
+      - key: MOVIES_API_BASE_URL
+        fromService:
+          type: web
+          name: br4dleyv-howestprime-movies
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: br4dleyv-howestprime-backoffice
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: st-client-backoffice-Br4dleyV-main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: MoviesApi__BaseUrl
+        fromService:
+          type: web
+          name: br4dleyv-howestprime-movies
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: MoviesApi__TimeoutSeconds
+        value: "120"
+
+  - type: web
+    name: br4dleyv-howestprime-webapp
+    runtime: image
+    plan: free
+    region: frankfurt
+    image:
+      url: docker.io/br4dleyv/howestprime-client-webapp@sha256:7b0564fbbde490f67370e227958d1f8857cdaa210e36dd8c6a41d0391d0e2566
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: "80"
+      - key: VITE_APP_MOVIES_BASE_API_URL
+        fromService:
+          type: web
+          name: br4dleyv-howestprime-movies
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: VITE_APP_TICKETING_API_URL
+        fromService:
+          type: web
+          name: br4dleyv-howestprime-ticketing
+          envVarKey: RENDER_EXTERNAL_URL

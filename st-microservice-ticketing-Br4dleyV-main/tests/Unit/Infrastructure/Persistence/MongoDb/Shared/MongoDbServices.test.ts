@@ -28,6 +28,20 @@ function createServiceCollectionStub() {
     return { collection, scoped, singleton };
 }
 
+Deno.test('[Unit] - MongoDbServices - Atlas URI overrides legacy fields without adding a port', async () => {
+    const config = createConfig({
+        PERSISTENCE_MONGO_DB_URI:
+            'mongodb+srv://portfolio:example@cluster.example.com/howestprime_ticketing?retryWrites=true&w=majority',
+        PERSISTENCE_MONGO_DB_DIRECT_CONNECTION: 'false',
+    });
+    const client = MongoDbServices.createNativeMongoClient(config);
+    assertEquals(client.options.srvHost, 'cluster.example.com');
+    assertEquals(client.options.dbName, 'howestprime_ticketing');
+    assertEquals(client.options.tls, true);
+    assertEquals(client.options.directConnection, false);
+    await client.close();
+});
+
 Deno.test('[Unit] - MongoDbServices - add/addMongoDbClient/addUnitOfWork/createNativeMongoClient - wires services', async () => {
     const config = createConfig({
         PERSISTENCE_MONGO_DB_PROTOCOL: 'mongodb',

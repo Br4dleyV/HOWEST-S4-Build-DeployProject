@@ -53,7 +53,8 @@ public static class AmqpServices
                 configuration.GetValue<string>("MessageBroker:Port")!,
                 configuration.GetValue<string>("MessageBroker:VirtualHost")!,
                 configuration.GetValue<string>("MessageBroker:Username")!,
-                configuration.GetValue<string>("MessageBroker:Password")!
+                configuration.GetValue<string>("MessageBroker:Password")!,
+                configuration.GetValue<string>("MessageBroker:ConnectionString")
             );
         });
     }

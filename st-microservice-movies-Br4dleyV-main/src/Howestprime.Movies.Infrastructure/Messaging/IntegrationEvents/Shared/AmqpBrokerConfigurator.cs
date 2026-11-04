@@ -35,11 +35,15 @@ public sealed class AmqpBrokerConfigurator
         string port,
         string virtualHost,
         string username,
-        string password
+        string password,
+        string? connectionString = null
     )
     {
-        var host = $"amqp://{username}:{password}@{hostname}:{port}/{virtualHost}";
-        logger.LogConnectingToAmqpBroker(host);
+        var host = string.IsNullOrWhiteSpace(connectionString)
+            ? $"amqp://{Uri.EscapeDataString(username)}:{Uri.EscapeDataString(password)}@{hostname}:{port}/{Uri.EscapeDataString(virtualHost)}"
+            : connectionString;
+        // A provider URL includes credentials: only log the broker hostname.
+        logger.LogConnectingToAmqpBroker(new Uri(host).Host);
         var asyncApiYaml = File.ReadAllText(asyncApiSpecification);
         var (brokerConfig, publishers, consumers) = AsyncApiParser.ParseAsyncApi(asyncApiYaml);
         return new AmqpBrokerConfigurator(logger, host, consumers, publishers, brokerConfig);

@@ -28,7 +28,7 @@ public class DefaultAmqpBroker(
                 autoDelete: true,
                 passive: false
             );
-        string host = factory.Uri.ToString();
+        string host = factory.Uri.Host;
         logger.LogConnectedToAmqpBroker(host);
     }
 

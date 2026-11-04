@@ -1,0 +1,13 @@
+# Local provider credentials and generated build output.
+.env
+.env.local
+.env.*.local
+**/bin/
+**/obj/
+**/node_modules/
+**/coverage/
+**/.gradle/
+**/build/
+**/local.properties
+*.tar
+*.tar.gz

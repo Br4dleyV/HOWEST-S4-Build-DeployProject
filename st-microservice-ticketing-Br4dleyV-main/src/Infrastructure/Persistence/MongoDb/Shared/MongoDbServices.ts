@@ -74,24 +74,7 @@ export class MongoDbServices {
         return async (
             _serviceProvider: ServiceProvider,
         ): Promise<MongoDbClient> => {
-            const protocol: string = config.get('PERSISTENCE_MONGO_DB_PROTOCOL');
-            const user: string = config.get('PERSISTENCE_MONGO_DB_USER');
-            const pass: string = config.get('PERSISTENCE_MONGO_DB_PASS');
-            const host: string = config.get('PERSISTENCE_MONGO_DB_HOST');
-            const port: string = config.get('PERSISTENCE_MONGO_DB_PORT');
-            const dbName: string = config.get('PERSISTENCE_MONGO_DB_NAME');
-            const options: string = config.get('PERSISTENCE_MONGO_DB_OPTIONS');
-            const directConnection: boolean =
-                config.get('PERSISTENCE_MONGO_DB_DIRECT_CONNECTION') === 'true';
-
-            const connectionString: string = MongoDbClient
-                .createConnectionString(protocol, host, port, options, dbName, user, pass);
-
-            const clientOptions = {
-                directConnection,
-            };
-
-            const client: MongoClient = new MongoClient(connectionString, clientOptions);
+            const client = this.createNativeMongoClient(config);
 
             // Connect the client before returning
             await client.connect();
@@ -113,7 +96,8 @@ export class MongoDbServices {
         const directConnection: boolean =
             config.get('PERSISTENCE_MONGO_DB_DIRECT_CONNECTION') === 'true';
 
-        const connectionString: string = MongoDbClient
+        // Atlas supplies a mongodb+srv URL, which must not receive a port.
+        const connectionString: string = config.get('PERSISTENCE_MONGO_DB_URI') || MongoDbClient
             .createConnectionString(protocol, host, port, options, dbName, user, pass);
 
         return new MongoClient(connectionString, {

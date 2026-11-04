@@ -87,7 +87,7 @@ public sealed class Movie : AggregateRoot<MovieId>
 
         movie.RaiseDomainEvent(
             new MovieRegistered(
-                movie.Id
+                movie
             )
         );
         return movie;
