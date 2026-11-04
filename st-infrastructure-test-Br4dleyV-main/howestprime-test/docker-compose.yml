@@ -1,0 +1,185 @@
+services:
+  # PostgreSQL database for movies microservice
+  movies-db.howestprime.test:
+    image: postgres:15
+    container_name: movies-db.howestprime.test
+    networks:
+      - howestprime-test
+    volumes:
+      - movies-db-data:/var/lib/postgresql/data
+    env_file:
+      - .movies-db.howestprime.test.env
+    ports:
+      - "40221:5000"  # External port to internal PostgreSQL port
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -p $${PGPORT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # MongoDB database for ticketing microservice
+  ticketing-db.howestprime.test:
+    image: mongo:latest
+    container_name: ticketing-db.howestprime.test
+    # Network configuration for the ticketing-db service
+    networks:
+      - howestprime-test
+    # Volume to persist the database data
+    volumes:
+      - ../../data:/data/db
+    # Env file for the ticketing-db service
+    env_file:
+      - .ticketing-db.howestprime.test.env
+    # Port mapping for the ticketing-db service
+    ports:
+      - "40231:5000" # Database Port
+    # Restart policy for the ticketing-db service
+    restart: unless-stopped
+    # Enable database transactions for MongoDB
+    command: >
+      bash -c "
+        mongod --port 5000 --replSet rs0 --bind_ip_all &
+        until mongosh --port 5000 --eval 'print(\"waited for connection\")'
+        do
+          sleep 1
+        done
+        mongosh --port 5000 --eval 'rs.initiate({
+          _id: \"rs0\",
+          members: [{ _id: 0, host: \"ticketing-db.howestprime.test:5000\" }]
+        })'
+        wait
+      "
+        # Health check because setting up MongoDB transactions takes a while
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --port 5000 --eval 'db.adminCommand(\"ping\")'"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 40s
+ 
+  # LavinMQ (AMQP message broker) for domain events
+  messagebroker.howestprime.test:
+    image: cloudamqp/lavinmq:latest
+    container_name: messagebroker.howestprime.test
+    networks:
+      - howestprime-test
+    ports:
+      - "40200:5672"   # External AMQP to internal AMQP port
+      - "40201:15672"  # External Management UI to internal Management UI port
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "lavinmqctl status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    environment:
+      - LAVINMQ_MANAGEMENT_UI_ENABLED=true
+
+  # Movies microservice
+  movies.howestprime.test:
+    image: howestprime-movies:test
+    build:
+      context: ../../st-microservice-movies-Br4dleyV
+      dockerfile: Dockerfile
+    container_name: movies.howestprime.test
+    networks:
+      - howestprime-test
+    ports:
+      - "40220:8000"
+    env_file:
+      - .movies.howestprime.test.env
+    environment:
+      - ASPNETCORE_URLS=http://+:8000
+      - ASPNETCORE_HTTP_PORT=8000
+    depends_on:
+      movies-db.howestprime.test:
+        condition: service_healthy
+      messagebroker.howestprime.test:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/howestprime-schedule/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Ticketing microservice
+  ticketing.howestprime.test:
+    build:
+      context: ../../st-microservice-ticketing-Br4dleyV
+      dockerfile: Dockerfile
+    image: howestprime-ticketing:test
+    container_name: ticketing.howestprime.test
+    networks:
+      - howestprime-test
+    ports:
+      - "40230:8000"
+    env_file:
+      - .ticketing.howestprime.test.env
+    depends_on:
+      ticketing-db.howestprime.test:
+        condition: service_healthy
+      messagebroker.howestprime.test:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "deno eval \"const response = await fetch('http://localhost:8000/api/health'); if (!response.ok) Deno.exit(1);\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Backoffice client application
+  backoffice.howestprime.test:
+    build: 
+      context: ../../st-client-backoffice-Br4dleyV
+      dockerfile: Dockerfile
+    image: howestprime-client-backoffice:test
+    container_name: backoffice.howestprime.test
+    networks:
+      - howestprime-test
+    ports:
+      - "10210:8080"
+    env_file:
+      - .client-backoffice.howestprime.test.env
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORT=8080
+    volumes:
+      - dataprotection-keys:/root/.aspnet/DataProtection-Keys
+    depends_on:
+      movies.howestprime.test:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Client web application
+  client-webapp.howestprime.test:
+    image: hcr.technet.howest.be/howestprime-client-webapp:latest
+    container_name: client-webapp.howestprime.test
+    networks:
+      - howestprime-test
+    ports:
+      - "10200:80"
+    env_file:
+      - .client-webapp.howestprime.test.env
+
+networks:
+  howestprime-test:
+    ipam:
+      config:
+      # Subnet for the howestprime-test network
+        - subnet: 10.22.0.0/16
+
+volumes:
+  movies-db-data:
+  dataprotection-keys:

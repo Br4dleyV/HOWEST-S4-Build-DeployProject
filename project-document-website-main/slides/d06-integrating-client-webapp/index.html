@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D06: Integrating the Client Webapp</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/theme/white.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --c-blue: #44c8f5;
+            --c-cyan: #00bcd4;
+            --c-magenta: #e6007e;
+            --c-yellow: #ffff00;
+            --c-teal: #009993;
+            --c-mint: #b4e1d6;
+            --c-black: #000000;
+            --c-white: #ffffff;
+            --c-paper: #ffffff;
+            --c-line: #d9dde5;
+            --bg-light-blue: #8ac9ed;
+            --bg-light-cyan: #b2ebf2;
+            --bg-light-pink: #fcc2cc;
+            --bg-light-yellow: #fff166;
+            --bg-mint: #b4e1d6;
+        }
+
+        html {
+            font-size: 22px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif !important;
+            background: var(--c-paper);
+            color: var(--c-black);
+        }
+
+        .reveal {
+            color: var(--c-black);
+        }
+
+        .reveal .slides section {
+            overflow: hidden;
+        }
+
+        .reveal .progress {
+            height: 10px;
+            background: var(--bg-light-cyan);
+        }
+
+        .reveal .progress span {
+            background: var(--c-magenta) !important;
+        }
+
+        .reveal .slide-number,
+        .reveal .controls {
+            display: none !important;
+        }
+
+        .reveal h1,
+        .reveal h2,
+        .reveal h3,
+        .reveal h4 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            text-transform: none;
+            letter-spacing: -0.03em;
+            color: var(--c-black);
+            line-height: 1.02;
+        }
+
+        .reveal p,
+        .reveal div,
+        .reveal span,
+        .reveal td,
+        .reveal th,
+        .reveal li {
+            font-size: 1.25rem;
+            line-height: 1.25;
+            font-weight: 500;
+        }
+
+        .text-blue {
+            color: var(--c-blue) !important;
+        }
+
+        .text-cyan {
+            color: var(--c-cyan) !important;
+        }
+
+        .text-magenta {
+            color: var(--c-magenta) !important;
+        }
+
+        .text-yellow {
+            color: var(--c-yellow) !important;
+        }
+
+        .text-teal {
+            color: var(--c-teal) !important;
+        }
+
+        .stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 960px;
+            padding: 1rem 1.2rem;
+            overflow: hidden;
+            display: grid;
+            gap: 0.8rem;
+            align-content: center;
+        }
+
+        .art-shell {
+            border: 4px solid var(--c-black);
+            border-top-width: 14px;
+            border-top-color: var(--c-cyan);
+            background: var(--c-white);
+            box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-title {
+            font-size: 4.8rem !important;
+            margin: 0;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem !important;
+            margin: 0.4rem 0 0;
+            opacity: 0.86;
+        }
+
+        .shape {
+            position: absolute;
+            z-index: 0;
+            border: 4px solid var(--c-black);
+            opacity: 0.95;
+        }
+
+        .shape.blue {
+            background: var(--c-blue);
+        }
+
+        .shape.cyan {
+            background: var(--c-cyan);
+        }
+
+        .shape.magenta {
+            background: var(--c-magenta);
+        }
+
+        .shape.yellow {
+            background: var(--c-yellow);
+        }
+
+        .shape.teal {
+            background: var(--c-teal);
+        }
+
+        .shape.mint {
+            background: var(--c-mint);
+        }
+
+        .shape.dot {
+            border-radius: 999px;
+        }
+
+        .z-top {
+            position: relative;
+            z-index: 3;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .chip {
+            border: 3px solid var(--c-black);
+            background: var(--c-white);
+            padding: 0.45rem 0.9rem;
+            font-size: 1.1rem;
+            font-weight: 800;
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .chip.blue {
+            background: var(--c-blue);
+        }
+
+        .chip.cyan {
+            background: var(--bg-light-cyan);
+        }
+
+        .chip.magenta {
+            background: var(--c-magenta);
+            color: var(--c-white);
+        }
+
+        .chip.yellow {
+            background: var(--c-yellow);
+        }
+
+        .chip.teal {
+            background: var(--c-teal);
+            color: var(--c-white);
+        }
+
+        .panel-title {
+            font-size: 3.3rem !important;
+            margin: 0;
+        }
+
+        .panel-sub {
+            font-size: 1.25rem !important;
+            margin: 0.2rem 0 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.8rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.8rem;
+        }
+
+        .card {
+            border: 3px solid var(--c-black);
+            background: var(--c-white);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.08);
+            padding: 0.9rem;
+            text-align: left;
+            display: grid;
+            gap: 0.25rem;
+        }
+
+        .card.blue {
+            background: var(--bg-light-blue);
+        }
+
+        .card.cyan {
+            background: var(--bg-light-cyan);
+        }
+
+        .card.magenta {
+            background: var(--bg-light-pink);
+        }
+
+        .card.yellow {
+            background: var(--bg-light-yellow);
+        }
+
+        .card.mint {
+            background: var(--bg-mint);
+        }
+
+        .card.teal {
+            background: var(--c-teal);
+            color: var(--c-white);
+        }
+
+        .card.teal h4,
+        .card.teal p,
+        .card.teal li {
+            color: var(--c-white);
+        }
+
+        .card h4 {
+            font-size: 1.45rem;
+            margin: 0;
+        }
+
+        .card p {
+            font-size: 1.08rem;
+            margin: 0;
+        }
+
+        .flow-bar {
+            border: 3px solid var(--c-black);
+            background: var(--c-white);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.1);
+            padding: 0.55rem;
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 0.45rem;
+            align-items: center;
+        }
+
+        .flow-node {
+            border: 3px solid var(--c-black);
+            padding: 0.45rem;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 800;
+            background: var(--c-white);
+        }
+
+        .flow-node.blue {
+            background: var(--bg-light-blue);
+        }
+
+        .flow-node.cyan {
+            background: var(--bg-light-cyan);
+        }
+
+        .flow-node.magenta {
+            background: var(--bg-light-pink);
+        }
+
+        .flow-node.yellow {
+            background: var(--bg-light-yellow);
+        }
+
+        .flow-node.mint {
+            background: var(--bg-mint);
+        }
+
+        .flow-node.teal {
+            background: var(--c-teal);
+            color: var(--c-white);
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--c-magenta);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.7rem;
+        }
+
+        .step-card {
+            border: 3px solid var(--c-black);
+            background: var(--c-white);
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.1);
+            padding: 0.75rem;
+            display: grid;
+            gap: 0.25rem;
+            text-align: left;
+        }
+
+        .step-card .n {
+            font-size: 1.65rem;
+            font-weight: 900;
+            color: var(--c-cyan);
+        }
+
+        .step-card .title {
+            font-size: 1.12rem;
+            font-weight: 900;
+        }
+
+        .step-card .desc {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .step-card.blue {
+            background: var(--bg-light-blue);
+        }
+
+        .step-card.cyan {
+            background: var(--bg-light-cyan);
+        }
+
+        .step-card.magenta {
+            background: var(--bg-light-pink);
+        }
+
+        .step-card.yellow {
+            background: var(--bg-light-yellow);
+        }
+
+        .step-card.mint {
+            background: var(--bg-mint);
+        }
+
+        .final-badge {
+            border: 4px solid var(--c-black);
+            background: var(--bg-light-yellow);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.12);
+            padding: 0.8rem 1rem;
+            font-size: 1.25rem;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .custom-nav-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-light-cyan);
+            border: 3px solid var(--c-black);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.1);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .slide-counter {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--c-black);
+            padding: 0.25rem 0.55rem;
+            border-left: 4px solid var(--c-magenta);
+            min-width: 88px;
+            text-align: center;
+            background: var(--c-white);
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .nav-btn {
+            width: 42px;
+            height: 42px;
+            border: 2px solid var(--c-black);
+            background: var(--c-white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--c-black);
+            transition: 0.15s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--c-magenta);
+            color: var(--c-white);
+            border-color: var(--c-magenta);
+        }
+
+        .nav-separator {
+            width: 2px;
+            height: 24px;
+            background: var(--c-line);
+        }
+
+        @media (max-width: 1200px) {
+            html {
+                font-size: 18px;
+            }
+
+            .grid-2,
+            .grid-3,
+            .steps-grid,
+            .flow-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .stage {
+                min-height: unset;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Slide 1: Title -->
+            <section data-transition="zoom">
+                <div class="stage">
+                    <div class="shape cyan" style="width:220px;height:220px;left:2%;top:6%;"></div>
+                    <div class="shape magenta" style="width:190px;height:190px;right:4%;top:14%;"></div>
+                    <div class="shape mint dot" style="width:170px;height:170px;right:20%;bottom:8%;"></div>
+
+                    <div class="z-top art-shell" style="padding:1.1rem 1.2rem; max-width:100%;">
+                        <h1 class="hero-title">D06: Integrating the Client Webapp</h1>
+                        <p class="hero-subtitle">Short, high-level guide</p>
+                    </div>
+
+                    <div class="z-top chips">
+                        <span class="chip cyan fragment fade-up"><i class="fa-solid fa-bullseye"></i> Scope D06</span>
+                        <span class="chip magenta fragment fade-up"><i class="fa-solid fa-code-branch"></i> No app code changes — config &amp; Docker only</span>
+                        <span class="chip teal fragment fade-up"><i class="fa-solid fa-plug"></i> Connect Vue.js → Movies + Ticketing APIs</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 2: D06 in one slide -->
+            <section data-transition="concave">
+                <div class="stage">
+                    <div class="art-shell" style="padding:0.8rem 1rem;">
+                        <h2 class="panel-title">D06 in one slide</h2>
+                        <p class="panel-sub">Wire up the pre-built Vue.js booking wizard to your microservices inside the test environment.</p>
+                    </div>
+                    <div class="grid-3">
+                        <div class="card cyan fragment fade-up">
+                            <h4><i class="fa-brands fa-vuejs text-teal"></i> Given Code</h4>
+                            <p>Pre-built Vue.js app — no modification required.</p>
+                            <p>4-step wizard: movie → seats → ticket type → payment.</p>
+                        </div>
+                        <div class="card yellow fragment fade-up">
+                            <h4><i class="fa-brands fa-docker text-cyan"></i> Dockerize</h4>
+                            <p>Write a Dockerfile and add the webapp service to docker-compose.</p>
+                            <p>Deploy alongside Movies and Ticketing in the test environment.</p>
+                        </div>
+                        <div class="card magenta fragment fade-up">
+                            <h4><i class="fa-solid fa-plug text-black"></i> Connect</h4>
+                            <p>Configure API endpoint URLs so the webapp reaches both microservices.</p>
+                            <p>Validate end-to-end booking flow without errors.</p>
+                        </div>
+                    </div>
+                    <div class="final-badge fragment fade-up">No Vue.js development needed — focus is entirely on Docker config and API wiring.</div>
+                </div>
+            </section>
+
+            <!-- Slide 3: High-level integration flow -->
+            <section data-transition="slide">
+                <div class="stage">
+                    <div class="art-shell" style="padding:0.75rem 1rem;">
+                        <h2 class="panel-title">High-level integration flow</h2>
+                        <p class="panel-sub">How the browser, webapp, and microservices connect.</p>
+                    </div>
+                    <div class="flow-bar">
+                        <div class="flow-node blue fragment fade-up">Browser</div>
+                        <div class="flow-arrow fragment fade-up"><i class="fa-solid fa-arrow-right-long"></i></div>
+                        <div class="flow-node cyan fragment fade-up">Vue.js Webapp</div>
+                        <div class="flow-arrow fragment fade-up"><i class="fa-solid fa-arrow-right-long"></i></div>
+                        <div class="flow-node yellow fragment fade-up">Movies API</div>
+                    </div>
+                    <div class="flow-bar">
+                        <div class="flow-node cyan fragment fade-up">Vue.js Webapp</div>
+                        <div class="flow-arrow fragment fade-up"><i class="fa-solid fa-arrow-right-long"></i></div>
+                        <div class="flow-node teal fragment fade-up">Ticketing API</div>
+                        <div class="flow-arrow fragment fade-up"><i class="fa-solid fa-arrow-right-long"></i></div>
+                        <div class="flow-node mint fragment fade-up">MongoDB</div>
+                    </div>
+                    <div class="flow-bar">
+                        <div class="flow-node yellow fragment fade-up">Movies API</div>
+                        <div class="flow-arrow fragment fade-up"><i class="fa-solid fa-arrow-right-long"></i></div>
+                        <div class="flow-node magenta fragment fade-up">Message Broker</div>
+                        <div class="flow-arrow fragment fade-up"><i class="fa-solid fa-arrow-right-long"></i></div>
+                        <div class="flow-node teal fragment fade-up">Ticketing API</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: Step-by-step plan -->
+            <section data-transition="slide">
+                <div class="stage">
+                    <div class="art-shell" style="padding:0.75rem 1rem;">
+                        <h2 class="panel-title">Step-by-step plan</h2>
+                        <p class="panel-sub">Recommended implementation order for D06.</p>
+                    </div>
+                    <div class="steps-grid">
+                        <div class="step-card cyan fragment fade-up">
+                            <div class="n">1</div>
+                            <div class="title">Verify microservices</div>
+                            <p class="desc">Confirm D02 (Movies) and D05 (Ticketing) are running and reachable in the test environment.</p>
+                        </div>
+                        <div class="step-card yellow fragment fade-up">
+                            <div class="n">2</div>
+                            <div class="title">Inspect provided code</div>
+                            <p class="desc">Review the Vue.js app to understand which env variables control API base URLs.</p>
+                        </div>
+                        <div class="step-card magenta fragment fade-up">
+                            <div class="n">3</div>
+                            <div class="title">Write Dockerfile</div>
+                            <p class="desc">Containerize the Vue.js app — build stage + static server (nginx or similar).</p>
+                        </div>
+                        <div class="step-card mint fragment fade-up">
+                            <div class="n">4</div>
+                            <div class="title">Configure env variables</div>
+                            <p class="desc">Set Movies API URL and Ticketing API URL in docker-compose environment section.</p>
+                        </div>
+                        <div class="step-card blue fragment fade-up">
+                            <div class="n">5</div>
+                            <div class="title">Validate booking wizard</div>
+                            <p class="desc">Run all 4 steps end-to-end: movie selection → seats → ticket type → payment.</p>
+                        </div>
+                        <div class="step-card yellow fragment fade-up">
+                            <div class="n">6</div>
+                            <div class="title">Error handling check</div>
+                            <p class="desc">Confirm the UI displays appropriate messages when an API request fails.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: Done means -->
+            <section data-transition="concave">
+                <div class="stage">
+                    <div class="art-shell" style="padding:0.75rem 1rem;">
+                        <h2 class="panel-title">Done means</h2>
+                        <p class="panel-sub">Minimal checklist before you call D06 finished.</p>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card teal fragment fade-up">
+                            <h4><i class="fa-solid fa-check-double text-yellow"></i> Functional</h4>
+                            <p>Booking wizard completes all 4 steps without errors.</p>
+                            <p>Webapp communicates correctly with Movies and Ticketing APIs.</p>
+                            <p>Appropriate error messages shown when APIs are unreachable.</p>
+                        </div>
+                        <div class="card cyan fragment fade-up">
+                            <h4><i class="fa-brands fa-docker text-magenta"></i> Deployment</h4>
+                            <p>Webapp is dockerized and runs in the test environment.</p>
+                            <p>API endpoint URLs configured via environment variables.</p>
+                            <p>No hardcoded URLs or credentials in the image.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6: Closing -->
+            <section data-transition="fade">
+                <div class="stage" style="align-content:center;">
+                    <div class="shape cyan" style="width:220px;height:220px;left:5%;top:18%;"></div>
+                    <div class="shape mint" style="width:200px;height:200px;right:6%;top:22%;"></div>
+                    <div class="shape magenta" style="width:220px;height:220px;left:42%;bottom:8%;"></div>
+
+                    <div class="z-top art-shell" style="padding:1rem 1.2rem; text-align:center;">
+                        <h1 style="font-size:4.7rem; margin:0;">D06 Ready</h1>
+                        <p class="hero-subtitle">Integrating the Client Webapp</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <div class="custom-nav-panel">
+        <div class="slide-counter">
+            <span id="current-slide">1</span>/<span id="total-slides">1</span>
+        </div>
+        <div class="nav-separator"></div>
+        <div class="nav-controls">
+            <button class="nav-btn" onclick="Reveal.prev()" title="Previous slide"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="nav-btn" onclick="Reveal.next()" title="Next slide"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/highlight.min.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: false,
+            progress: true,
+            center: true,
+            hash: false,
+            slideNumber: false,
+            width: 1920,
+            height: 1080,
+            margin: 0.03,
+            transition: 'slide',
+            backgroundTransition: 'fade',
+            autoAnimateDuration: 0.8,
+            plugins: [RevealHighlight]
+        });
+
+        function updateSlideCounter() {
+            const indices = Reveal.getIndices();
+            const totalSlides = Reveal.getTotalSlides();
+            const slideNumber = indices.h + 1;
+            document.getElementById('current-slide').textContent = slideNumber;
+            document.getElementById('total-slides').textContent = totalSlides;
+            history.replaceState(null, null, '#' + slideNumber);
+        }
+
+        function navigateFromHash() {
+            const hash = window.location.hash.slice(1);
+            const slideNumber = parseInt(hash, 10);
+            if (!Number.isNaN(slideNumber) && slideNumber > 0) {
+                Reveal.slide(slideNumber - 1);
+            }
+        }
+
+        Reveal.on('slidechanged', updateSlideCounter);
+        Reveal.on('ready', () => {
+            navigateFromHash();
+            updateSlideCounter();
+        });
+
+        window.addEventListener('hashchange', navigateFromHash);
+    </script>
+</body>
+
+</html>

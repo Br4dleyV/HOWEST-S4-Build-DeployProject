@@ -1,0 +1,118 @@
+@using Howestprime.Movies.ApiClient.Responses
+@using Howestprime.Movies.ApiClient.Requests
+
+@* CalendarEntry Component
+    Modal form for scheduling a movie event.
+    Note: This component is deprecated and not currently used in Planning.razor
+    The Planning.razor component handles the modal directly instead.
+    Kept for reference/future use.
+*@
+
+<div class="calendar-entry-modal">
+    <h3>Schedule Movie Event</h3>
+    <p>@Day.ToShortDateString() - @TimeSlot</p>
+
+    <!-- Room Selection -->
+    <div class="form-group">
+        <label>Select Room:</label>
+        <select @bind="selectedRoomId">
+            <option value="">-- Choose a room --</option>
+            @foreach (var room in Rooms)
+            {
+                <option value="@room.Id">@room.Name</option>
+            }
+        </select>
+    </div>
+
+    <!-- Movie Selection -->
+    <div class="form-group">
+        <label>Select Movie:</label>
+        <select @bind="selectedMovieId">
+            <option value="">-- Choose a movie --</option>
+            @foreach (var movie in AvailableMovies)
+            {
+                <option value="@movie.Id">@movie.Title</option>
+            }
+        </select>
+    </div>
+
+    <!-- Action Buttons -->
+    <button @onclick="SubmitAsync" class="btn-submit">Schedule</button>
+    <button @onclick="OnCancel" class="btn-cancel">Cancel</button>
+</div>
+
+@code {
+    /// <summary>
+    /// The date selected for this event
+    /// </summary>
+    [Parameter]
+    public required DateTime Day { get; set; }
+
+    /// <summary>
+    /// The time slot selected for this event (15:00 or 19:00)
+    /// </summary>
+    [Parameter]
+    public required string TimeSlot { get; set; }
+
+    /// <summary>
+    /// List of available rooms to choose from
+    /// </summary>
+    [Parameter]
+    public required List<Room> Rooms { get; set; } = [];
+
+    /// <summary>
+    /// List of available movies to choose from
+    /// </summary>
+    [Parameter]
+    public required List<Movie> AvailableMovies { get; set; } = [];
+
+    /// <summary>
+    /// Callback event when user clicks Cancel button
+    /// </summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    /// <summary>
+    /// Callback event when user clicks Schedule button
+    /// Passes the created scheduling request
+    /// </summary>
+    [Parameter]
+    public EventCallback<ScheduleMovieEventRequest> OnSubmit { get; set; }
+
+    /// <summary>
+    /// Stores the selected room ID (as GUID string)
+    /// </summary>
+    private string selectedRoomId = string.Empty;
+
+    /// <summary>
+    /// Stores the selected movie ID (as GUID string)
+    /// </summary>
+    private string selectedMovieId = string.Empty;
+
+    /// <summary>
+    /// Handles form submission
+    /// Validates selections and creates the scheduling request
+    /// </summary>
+    private async Task SubmitAsync()
+    {
+        // Validate that both room and movie are selected
+        if (string.IsNullOrEmpty(selectedRoomId) || string.IsNullOrEmpty(selectedMovieId))
+        {
+            return;
+        }
+
+        // Build the scheduling request
+        var request = new ScheduleMovieEventRequest
+        {
+            MovieId = Guid.Parse(selectedMovieId),
+            RoomId = Guid.Parse(selectedRoomId),
+            // Combine date and time
+            Showtime = new DateTime(Day.Year, Day.Month, Day.Day,
+                int.Parse(TimeSlot.Split(':')[0]),
+                int.Parse(TimeSlot.Split(':')[1]), 0, DateTimeKind.Utc)
+        };
+
+        // Send the request to parent component
+        await OnSubmit.InvokeAsync(request);
+    }
+}

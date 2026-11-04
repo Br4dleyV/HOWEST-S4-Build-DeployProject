@@ -1,0 +1,63 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare site artifact
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import shutil
+          
+          src = pathlib.Path(".")
+          dst = pathlib.Path("_site")
+          
+          if dst.exists():
+            shutil.rmtree(dst)
+          dst.mkdir(parents=True, exist_ok=True)
+          
+          exclude = {".git", ".github", "_site"}
+          
+          for child in src.iterdir():
+            if child.name in exclude:
+              continue
+            target = dst / child.name
+            if child.is_dir():
+              shutil.copytree(child, target, dirs_exist_ok=True)
+            else:
+              shutil.copy2(child, target)
+          PY
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
+        

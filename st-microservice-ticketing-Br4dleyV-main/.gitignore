@@ -1,0 +1,9 @@
+.env
+*.lcov
+cov_profile
+.scannerwork
+coverage
+/data
+/old
+.DS_Store
+/merged

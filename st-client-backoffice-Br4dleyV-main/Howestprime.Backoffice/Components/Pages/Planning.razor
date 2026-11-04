@@ -1,0 +1,72 @@
+﻿@page "/"
+@page "/planning"
+@rendermode InteractiveServer
+@using Howestprime.Backoffice.Components.Planning
+
+<!-- ERROR MESSAGE PLACEHOLDER (required) -->
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="error-message" role="alert">
+        @errorMessage
+    </div>
+}
+
+<main class="app-content">
+    <!-- Month Navigation with Legend -->
+    <div class="month-nav-container">
+        <!-- Room Legend: Shows which color represents which room -->
+        <div class="room-legend">
+            <div class="room-legend-item">
+                <div class="room-legend-color room-legend-blue"></div>
+                <span>Room Bradley</span>
+            </div>
+            <div class="room-legend-item">
+                <div class="room-legend-color room-legend-yellow"></div>
+                <span>Room 2</span>
+            </div>
+        </div>
+
+        <!-- Month Navigation: Previous month, current month display, next month -->
+        <div class="month-nav">
+            <button class="prev-month" @onclick="() => ChangeMonthAsync(-1)">&larr;</button>
+            
+            <!-- Display current month and year -->
+            <h2 class="month-year">@currentMonth.ToString("MMMM yyyy")</h2>
+            
+            <button class="next-month" @onclick="() => ChangeMonthAsync(1)">&rarr;</button>
+        </div>
+        <div style="width: 100px;"></div> <!-- Empty div for balanced spacing -->
+    </div>
+
+    <!-- Day-of-week Header (7 cells for Sun..Sat) -->
+    <div class="calendar-grid">
+        <div class="day-name">Sun</div>
+        <div class="day-name">Mon</div>
+        <div class="day-name">Tue</div>
+        <div class="day-name">Wed</div>
+        <div class="day-name">Thu</div>
+        <div class="day-name">Fri</div>
+        <div class="day-name">Sat</div>
+    </div>
+
+    <!-- CALENDAR DAY CELLS - Shows all days of the current month with scheduled events -->
+    <div class="calendar-grid">
+        @foreach (var day in GetDaysInMonth())
+        {
+            <CalendarDay Day="day"
+                         CurrentMonth="currentMonth"
+                         TimeSlots="TimeSlots"
+                         MovieEvents="movieEvents"
+                         OnDaySelected="OpenAddEventModal" />
+        }
+    </div>
+</main>
+
+<EventModal Show="showModal"
+            AvailableMovies="AvailableMovies"
+            ErrorMessage="@modalError"
+            OnSave="SaveNewEventAsync"
+            OnClose="CloseModal"
+            @bind-SelectedRoom="selectedRoom"
+            @bind-SelectedTime="selectedTime"
+            @bind-SelectedMovie="selectedMovie" />

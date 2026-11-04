@@ -1,0 +1,48 @@
+services:
+  messagebroker.device.dev:
+    image: cloudamqp/lavinmq
+    ports:
+      - 40300:5672      # AMQP
+      - 40301:15672     # Web UI
+    restart: unless-stopped
+    networks:
+      - messagebroker-mobile-dev
+    healthcheck:
+      test: ["CMD-SHELL", "lavinmqctl status | grep -q 'Uptime: ' || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 40s
+
+  lavinmq-init:
+    image: python:3.14-slim
+    depends_on:
+      messagebroker.device.dev:
+        condition: service_healthy
+    networks:
+      - messagebroker-mobile-dev
+    volumes:
+      - ./init:/init
+    working_dir: /init
+    command: >
+      sh -c "pip install pika && python init_queues.py"
+
+  lavinmq-seed:
+    image: python:3.14-slim
+    depends_on:
+      lavinmq-init:
+        condition: service_completed_successfully
+    networks:
+      - messagebroker-mobile-dev
+    volumes:
+      - ./init:/init
+    working_dir: /init
+    command: >
+      sh -c "pip install pika && python seed_orders.py"
+
+networks:
+  messagebroker-mobile-dev:
+    ipam:
+      config:
+        - subnet: 10.23.0.0/16
+

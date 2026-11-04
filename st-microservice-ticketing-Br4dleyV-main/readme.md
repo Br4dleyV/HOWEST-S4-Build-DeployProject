@@ -1,0 +1,2 @@
+- docker compose -f config/ticketing-howestprime-dev/docker-compose.yml down
+- docker compose -f config/ticketing-howestprime-dev/docker-compose.yml up -d

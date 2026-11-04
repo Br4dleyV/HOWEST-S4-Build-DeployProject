@@ -1,0 +1,237 @@
+asyncapi: 3.1.0
+info:
+  title: Movies
+  version: 1.0.0
+  description: |
+    This AsyncAPI specification describes outgoing and incoming events for the Howestprime Movies service.
+  x-metadata:
+    BoundedContext: Movies
+  
+defaultContentType: application/json
+
+servers:
+  messagebroker:
+    host: "{host}"
+    protocol: amqp
+    description: Local AMQP message broker
+    bindings:
+      amqp:
+        virtualHost: /
+
+channels:
+  # Receive channels
+  Howestprime.Ticketing.Payment.PaymentFailed:
+    messages:
+      PaymentFailed:
+        $ref: '#/components/messages/PaymentFailed'
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: howestprime
+          type: topic
+          routingKey: howestprime.ticketing.payment.paymentfailed
+
+  Howestprime.Ticketing.Payment.PaymentSuccess:
+    messages:
+      PaymentSuccess:
+        $ref: '#/components/messages/PaymentSuccess'
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: howestprime
+          type: topic
+          routingKey: howestprime.ticketing.payment.paymentsuccess
+
+  # Send channels
+  MovieRegistered:
+    messages:
+      MovieRegistered:
+        $ref: '#/components/messages/MovieRegistered'
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: howestprime
+          type: topic
+          routingKey: howestprime.movies.movie.movieregistered
+
+  BookingOpened:
+    messages:
+      BookingOpened:
+        $ref: '#/components/messages/BookingOpened'
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: howestprime
+          type: topic
+          routingKey: howestprime.movies.movieevent.bookingopened
+
+  MovieDetailsChanged:
+    messages:
+      MovieDetailsChanged:
+        $ref: '#/components/messages/MovieDetailsChanged'
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: howestprime
+          type: topic
+          routingKey: howestprime.movies.movie.moviedetailschanged
+
+operations:
+  # Receive operations
+  WhenPaymentFailedCloseBooking:
+    action: receive
+    channel:
+      $ref: '#/channels/Howestprime.Ticketing.Payment.PaymentFailed'
+    description: Handles the PaymentFailed event from the Howestprime Ticketing service.
+    messages:
+      - $ref: '#/channels/Howestprime.Ticketing.Payment.PaymentFailed/messages/PaymentFailed'
+
+  WhenPaymentSuccessCloseBooking:
+    action: receive
+    channel:
+      $ref: '#/channels/Howestprime.Ticketing.Payment.PaymentSuccess'
+    description: Handles the PaymentSuccess event from the Howestprime Ticketing service.
+    messages:
+      - $ref: '#/channels/Howestprime.Ticketing.Payment.PaymentSuccess/messages/PaymentSuccess'
+
+  # Send operations
+  MovieRegistered:
+    action: send
+    channel:
+      $ref: '#/channels/MovieRegistered'
+    description: Publishes a MovieRegistered event when a new movie is registered.
+    messages:
+      - $ref: '#/channels/MovieRegistered/messages/MovieRegistered'
+
+  BookingOpened:
+    action: send
+    channel:
+      $ref: '#/channels/BookingOpened'
+    description: Publishes a BookingOpened event when booking opens for a movie event.
+    messages:
+      - $ref: '#/channels/BookingOpened/messages/BookingOpened'
+  
+  MovieDetailsChanged:
+    action: send
+    channel:
+      $ref: '#/channels/MovieDetailsChanged'
+    description: Publishes a MovieDetailsChanged event when movie details are updated.
+    messages:
+      - $ref: '#/channels/MovieDetailsChanged/messages/MovieDetailsChanged'
+
+components:
+  messages:
+    MovieRegistered:
+      name: MovieRegistered
+      title: Movie Registered
+      summary: Indicates a new movie has been registered.
+      payload:
+        type: object
+        properties:
+          movieId:
+            type: string
+            format: uuid
+          title:
+            type: string
+          releaseYear:
+            type: integer
+          duration:
+            type: integer
+          genres:
+            type: array
+            items:
+              type: string
+          actors:
+            type: array
+            items:
+              type: string
+          ageRating:
+            type: integer
+          posterUrl:
+            type: string
+        required:
+          - movieId
+          - title
+          - releaseYear
+          - duration
+          - genres
+          - actors
+          - ageRating
+          - posterUrl
+
+    BookingOpened:
+      name: BookingOpened
+      title: Booking Opened
+      summary: Indicates booking has been opened for a movie event.
+      payload:
+        type: object
+        properties:
+          bookingId:
+            type: string
+          movieId:
+            type: string
+          room:
+            type: string
+          showtime:
+            type: string
+            format: date-time
+          standardVisitors:
+            type: integer
+          discountedVisitors:
+            type: integer
+          seatNumbers:
+            type: array
+            items:
+              type: integer
+        required:
+          - bookingId
+          - movieId
+          - room
+          - showtime
+          - standardVisitors
+          - discountedVisitors
+          - seatNumbers
+
+    PaymentFailed:
+      name: PaymentFailed
+      title: Payment Failed
+      summary: Indicates a payment failed in the Howestprime Ticketing service.
+      payload:
+        type: object
+        properties:
+          bookingId:
+            type: string
+            format: uuid
+        required:
+          - bookingId
+
+    PaymentSuccess:
+      name: PaymentSuccess
+      title: Payment Success
+      summary: Indicates a payment succeeded in the Howestprime Ticketing service.
+      payload:
+        type: object
+        properties:
+          bookingId:
+            type: string
+            format: uuid
+        required:
+          - bookingId
+
+    MovieDetailsChanged:
+        name: MovieDetailsChanged
+        title: Movie Details Changed
+        summary: Indicates movie details have been updated.
+        payload:
+          type: object
+          properties:
+            movieId:
+              type: string
+              format: uuid
+          required:
+            - movieId

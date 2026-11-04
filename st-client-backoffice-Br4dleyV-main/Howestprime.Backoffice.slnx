@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Howestprime.Backoffice/Howestprime.Backoffice.csproj" />
+  <Project Path="Howestprime.Movies.ApiClient/Howestprime.Movies.ApiClient.csproj" />
+  <Project Path="Howestprime.Movies.MockServer/Howestprime.Movies.MockServer.csproj" />
+</Solution>

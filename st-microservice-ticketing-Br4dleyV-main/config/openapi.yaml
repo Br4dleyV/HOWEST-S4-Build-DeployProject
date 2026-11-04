@@ -1,0 +1,529 @@
+openapi: 3.0.3
+info:
+    title: Suggestion Service Web API
+    version: 1.0.0
+    description: |
+        HTTP API for creating and querying suggestions and customer-enriched orders.
+
+servers:
+    - url: http://localhost:8000
+      description: Local development server
+
+tags:
+    - name: Suggestions
+      description: Create and read suggestions
+    - name: Orders
+      description: Order lifecycle endpoints
+
+paths:
+    /api/suggestions:
+        get:
+            tags:
+                - Suggestions
+            summary: List suggestions
+            operationId: listSuggestions
+            responses:
+                '200':
+                    description: Suggestions retrieved
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/SuggestionResponse'
+                            examples:
+                                suggestions:
+                                    value:
+                                        - id: 8fdd8b8e-8de4-4b9a-8e16-868b72f4f469
+                                          email: jane.doe@example.com
+                                          title: Improve onboarding flow
+                                          description: Add contextual hints for first-time users.
+                                        - id: 7f6a0c4b-c0dd-4f6f-9ff5-7ef69ef9f6f4
+                                          email: john.smith@example.com
+                                          title: Add export feature
+                                          description: Allow exporting reports to CSV and PDF.
+                '500':
+                    $ref: '#/components/responses/InternalServerErrorProblem'
+
+        post:
+            tags:
+                - Suggestions
+            summary: Create suggestion
+            operationId: createSuggestion
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateSuggestionRequest'
+                        examples:
+                            createSuggestion:
+                                value:
+                                    email: user@example.com
+                                    title: Improve booking performance
+                                    description: Cache frequently requested movie data to reduce latency.
+            responses:
+                '201':
+                    description: Suggestion created
+                    headers:
+                        Location:
+                            $ref: '#/components/headers/Location'
+                '400':
+                    $ref: '#/components/responses/BadRequestProblem'
+                '500':
+                    $ref: '#/components/responses/InternalServerErrorProblem'
+
+    /api/suggestions/{suggestionId}:
+        get:
+            tags:
+                - Suggestions
+            summary: Get suggestion by id
+            operationId: getSuggestionById
+            parameters:
+                - $ref: '#/components/parameters/SuggestionId'
+            responses:
+                '200':
+                    description: Suggestion found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SuggestionResponse'
+                            examples:
+                                suggestion:
+                                    value:
+                                        id: 8fdd8b8e-8de4-4b9a-8e16-868b72f4f469
+                                        email: user@example.com
+                                        title: Improve booking performance
+                                        description: Cache frequently requested movie data to reduce latency.
+                '400':
+                    $ref: '#/components/responses/BadRequestProblem'
+                '404':
+                    $ref: '#/components/responses/NotFoundProblem'
+                '500':
+                    $ref: '#/components/responses/InternalServerErrorProblem'
+
+    /api/orders/{orderId}/customer:
+        post:
+            tags:
+                - Orders
+            summary: Add customer information to an order
+            operationId: addCustomerToOrder
+            parameters:
+                - $ref: '#/components/parameters/OrderId'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AddCustomerToOrderRequest'
+                        examples:
+                            addCustomerToOrder:
+                                value:
+                                    salutation: Ms.
+                                    firstName: Jane
+                                    lastName: Doe
+                                    email: jane.doe@example.com
+                                    agreeToTerms: true
+            responses:
+                '201':
+                    description: Customer information added
+                    headers:
+                        Location:
+                            $ref: '#/components/headers/LocationOrder'
+                '400':
+                    $ref: '#/components/responses/BadRequestProblem'
+                '404':
+                    $ref: '#/components/responses/NotFoundProblem'
+                '500':
+                    $ref: '#/components/responses/InternalServerErrorProblem'
+
+    /api/orders/{orderId}/payments:
+        post:
+            tags:
+                - Orders
+            summary: Pay an order
+            operationId: payOrder
+            parameters:
+                - $ref: '#/components/parameters/OrderId'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PayOrderRequest'
+                        examples:
+                            payOrder:
+                                value:
+                                    externalId: provider-12345
+                                    paymentMethod: Credit Card
+                                    cardNumber: '4111111111111111'
+                                    expiryDate: 12/2028
+                                    cvv: '123'
+                                    bookingId: 32d33834-6fd6-4eb6-b3aa-9b5f39001c5d
+                                    amount: 1100
+            responses:
+                '201':
+                    description: Payment created and processed
+                    headers:
+                        Location:
+                            $ref: '#/components/headers/LocationPayment'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PayOrderResponse'
+                            examples:
+                                payOrder:
+                                    value:
+                                        paymentId: 3c4cbb07-6c9f-4c60-9f79-7cc5eb5cbf7d
+                '400':
+                    $ref: '#/components/responses/BadRequestProblem'
+                '500':
+                    $ref: '#/components/responses/InternalServerErrorProblem'
+
+    /api/orders/{bookingId}:
+        get:
+            tags:
+                - Orders
+            summary: Get order by booking id
+            operationId: getOrderByBookingId
+            parameters:
+                - $ref: '#/components/parameters/BookingId'
+            responses:
+                '200':
+                    description: Order found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrderResponse'
+                            examples:
+                                order:
+                                    value:
+                                        id: 8fdd8b8e-8de4-4b9a-8e16-868b72f4f469
+                                        bookingId: 32d33834-6fd6-4eb6-b3aa-9b5f39001c5d
+                                        status: open
+                                        price: 1100
+                                        agreeToTerms: false
+                                        customer: null
+                                        tickets:
+                                            - ticketId: 23c1f2c4-ff67-4f8e-8d0b-8fdbe8efb0bf
+                                              seatNumber: 12
+                                              visitorType: standard
+                                              price: 500
+                                              movieId: b3f9a2d3-6f1c-4e0a-9a1d-123456789abc
+                                              room: Room A
+                                              showtime: 2026-05-20T19:30:00.000Z
+                '400':
+                    $ref: '#/components/responses/BadRequestProblem'
+                '404':
+                    $ref: '#/components/responses/NotFoundProblem'
+                '500':
+                    $ref: '#/components/responses/InternalServerErrorProblem'
+
+components:
+    parameters:
+        SuggestionId:
+            name: suggestionId
+            in: path
+            required: true
+            description: Suggestion identifier
+            schema:
+                $ref: '#/components/schemas/UUID'
+        OrderId:
+            name: orderId
+            in: path
+            required: true
+            description: Order identifier
+            schema:
+                $ref: '#/components/schemas/UUID'
+        BookingId:
+            name: bookingId
+            in: path
+            required: true
+            description: Booking identifier
+            schema:
+                $ref: '#/components/schemas/UUID'
+
+    headers:
+        Location:
+            description: URI of the created resource
+            schema:
+                type: string
+                format: uri-reference
+            example: /api/suggestions/8fdd8b8e-8de4-4b9a-8e16-868b72f4f469
+        LocationOrder:
+            description: URI of the updated order resource
+            schema:
+                type: string
+                format: uri-reference
+            example: /api/orders/8fdd8b8e-8de4-4b9a-8e16-868b72f4f469
+        LocationPayment:
+            description: URI of the created payment resource
+            schema:
+                type: string
+                format: uri-reference
+            example: /api/orders/8fdd8b8e-8de4-4b9a-8e16-868b72f4f469/payments/3c4cbb07-6c9f-4c60-9f79-7cc5eb5cbf7d
+
+    responses:
+        BadRequestProblem:
+            description: Validation or domain/application error
+            content:
+                application/problem+json:
+                    schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+        NotFoundProblem:
+            description: Resource not found
+            content:
+                application/problem+json:
+                    schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+        InternalServerErrorProblem:
+            description: Unhandled server error
+            content:
+                application/problem+json:
+                    schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+
+    schemas:
+        CreateSuggestionRequest:
+            type: object
+            required:
+                - email
+                - title
+                - description
+            properties:
+                email:
+                    type: string
+                    format: email
+                    maxLength: 254
+                    example: user@example.com
+                title:
+                    type: string
+                    minLength: 3
+                    maxLength: 120
+                    example: Improve booking performance
+                description:
+                    type: string
+                    minLength: 10
+                    maxLength: 2000
+                    example: Cache frequently requested movie data to reduce latency.
+
+        AddCustomerToOrderRequest:
+            type: object
+            required:
+                - salutation
+                - firstName
+                - lastName
+                - email
+                - agreeToTerms
+            properties:
+                salutation:
+                    type: string
+                    enum: ['Mr.', 'Ms.', 'Mx.']
+                    example: Ms.
+                firstName:
+                    type: string
+                    minLength: 1
+                    example: Jane
+                lastName:
+                    type: string
+                    minLength: 1
+                    example: Doe
+                email:
+                    type: string
+                    format: email
+                    maxLength: 254
+                    example: jane.doe@example.com
+                agreeToTerms:
+                    type: boolean
+                    example: true
+
+        PayOrderRequest:
+            type: object
+            required:
+                - externalId
+                - paymentMethod
+                - cardNumber
+                - expiryDate
+                - cvv
+                - bookingId
+                - amount
+            properties:
+                externalId:
+                    type: string
+                    minLength: 1
+                    example: provider-12345
+                paymentMethod:
+                    type: string
+                    enum: ['Credit Card', 'Bank Transfer']
+                    example: Credit Card
+                cardNumber:
+                    type: string
+                    pattern: '^\\d{12,19}$'
+                    example: '4111111111111111'
+                expiryDate:
+                    type: string
+                    pattern: '^(0[1-9]|1[0-2])\\/(\\d{2}|\\d{4})$'
+                    example: 12/2028
+                cvv:
+                    type: string
+                    pattern: '^\\d{3,4}$'
+                    example: '123'
+                bookingId:
+                    $ref: '#/components/schemas/UUID'
+                amount:
+                    type: number
+                    minimum: 0.01
+                    example: 1100
+
+        PayOrderResponse:
+            type: object
+            required:
+                - paymentId
+            properties:
+                paymentId:
+                    $ref: '#/components/schemas/UUID'
+
+        OrderResponse:
+            type: object
+            required:
+                - id
+                - bookingId
+                - status
+                - price
+                - agreeToTerms
+                - tickets
+            properties:
+                id:
+                    $ref: '#/components/schemas/UUID'
+                bookingId:
+                    $ref: '#/components/schemas/UUID'
+                status:
+                    type: string
+                    enum: [open, paid, ticketReleased, cancelled]
+                    example: open
+                price:
+                    type: number
+                    example: 1100
+                agreeToTerms:
+                    type: boolean
+                    example: false
+                customer:
+                    nullable: true
+                    allOf:
+                        - $ref: '#/components/schemas/CustomerResponse'
+                tickets:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TicketResponse'
+
+        CustomerResponse:
+            type: object
+            required:
+                - salutation
+                - firstName
+                - lastName
+                - email
+            properties:
+                salutation:
+                    type: string
+                    enum: ['Mr.', 'Ms.', 'Mx.']
+                firstName:
+                    type: string
+                lastName:
+                    type: string
+                email:
+                    type: string
+                    format: email
+
+        TicketResponse:
+            type: object
+            required:
+                - ticketId
+                - seatNumber
+                - visitorType
+                - price
+                - movieId
+                - room
+                - showtime
+            properties:
+                ticketId:
+                    $ref: '#/components/schemas/UUID'
+                seatNumber:
+                    type: number
+                    example: 12
+                visitorType:
+                    type: string
+                    enum: [standard, discounted]
+                    example: standard
+                price:
+                    type: number
+                    example: 500
+                movieId:
+                    $ref: '#/components/schemas/UUID'
+                room:
+                    type: string
+                    example: Room A
+                showtime:
+                    type: string
+                    format: date-time
+                    example: '2026-05-20T19:30:00.000Z'
+
+        SuggestionResponse:
+            type: object
+            required:
+                - id
+                - email
+                - title
+                - description
+            properties:
+                id:
+                    $ref: '#/components/schemas/UUID'
+                email:
+                    type: string
+                    format: email
+                    maxLength: 254
+                    example: user@example.com
+                title:
+                    type: string
+                    minLength: 3
+                    maxLength: 120
+                    example: Improve booking performance
+                description:
+                    type: string
+                    minLength: 10
+                    maxLength: 2000
+                    example: Cache frequently requested movie data to reduce latency.
+
+        ProblemDetails:
+            type: object
+            required:
+                - type
+                - title
+                - status
+                - detail
+                - instance
+            properties:
+                type:
+                    type: string
+                    format: uri
+                    example: https://tools.ietf.org/html/rfc7231#section-6.5.1
+                title:
+                    type: string
+                    example: Bad Request
+                status:
+                    type: integer
+                    format: int32
+                    minimum: 100
+                    maximum: 599
+                    example: 400
+                detail:
+                    type: string
+                    example: "SuggestionTitle has invalid value: ''."
+                instance:
+                    type: string
+                    format: uri
+                    example: http://localhost:8000/api/suggestions
+
+        UUID:
+            type: string
+            format: uuid

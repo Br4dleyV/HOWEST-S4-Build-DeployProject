@@ -1,0 +1,22 @@
+@using Howestprime.Movies.ApiClient.Responses
+
+@if (MovieEvent != null)
+{
+    var roomClass = GetRoomClass(MovieEvent.RoomName);
+    <div class="event @roomClass">
+        @MovieEvent.Showtime.ToString("HH:mm") @MovieEvent.MovieTitle (@MovieEvent.RoomName)
+    </div>
+}
+
+@code {
+    [Parameter]
+    public required string TimeSlot { get; set; }
+
+    [Parameter]
+    public MovieEvent? MovieEvent { get; set; }
+
+    private static string GetRoomClass(string roomName)
+    {
+        return roomName == "Blue Room" ? "event-room1" : "event-room2";
+    }
+}

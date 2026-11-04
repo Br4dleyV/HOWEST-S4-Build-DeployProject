@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Howest Prime</string>
+    <string name="description_text">Welcome to Howest Prime!\nYour personal assistant for the perfect movie experience. Store and access all your tickets in one place. Get notified when your film is about to start. Find your way through the cinema complex with ease and order your favorite snacks in advance — no waiting, just enjoying!\nEnjoy your movie experience with Howest Prime!</string>
+    <string name="order_a_snack_label">ORDER A SNACK!</string>
+    <string name="subscribe_to_newsletter_label">Subscribe to newsletter</string>
+    <string name="enter_your_email_address_label">Enter your email</string>
+    <string name="subscribe_button_label">Subscribe</string>
+    <string name="home_label">Home</string>
+    <string name="tickets_label">Tickets</string>
+    <string name="snacks_label">Snacks</string>
+    <string name="map_label">Map</string>
+    <string name="sensors_label">Sensors</string>
+    <string name="back_button">Back</string>
+    <string name="cart_label">CART</string>
+    <string name="send_order_label">Send order</string>
+    <string name="cancel_order_label">Cancel Order</string>
+    <string name="add_to_cart_label">(+) Add</string>
+    <string name="promo_label">PROMO</string>
+</resources>

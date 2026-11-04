@@ -1,0 +1,21 @@
+@baseUrl = http://localhost:8000
+@suggestionId = 8fdd8b8e-8de4-4b9a-8e16-868b72f4f469
+
+### Create suggestion
+POST {{baseUrl}}/api/suggestions
+Content-Type: application/json
+Accept: application/json
+
+{
+    "email": "user3@example.com",
+    "title": "Improve booking performance",
+    "description": "Cache frequently requested movie data to reduce latency."
+}
+
+### Get all suggestions
+GET {{baseUrl}}/api/suggestions
+Accept: application/json
+
+### Get suggestion by id
+GET {{baseUrl}}/api/suggestions/{{suggestionId}}
+Accept: application/json

@@ -1,0 +1,7 @@
+# Ignore the sensitive file and other unnecessary files
+/variables.sensitive.auto.tfvars
+/.terraform
+/.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.tfstate.lock.info

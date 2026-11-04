@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D09: Build Pipelines</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/theme/white.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --c-blue: #44c8f5;
+            --c-magenta: #e6007e;
+            --c-yellow: #ffff00;
+            --c-teal: #009993;
+            --c-mint: #b4e1d6;
+            --c-black: #000000;
+            --c-white: #ffffff;
+            --c-paper: #ffffff;
+            --c-line: #d9dde5;
+            --bg-light-blue: #8ac9ed;
+            --bg-light-pink: #fcc2cc;
+            --bg-light-yellow: #fff166;
+            --bg-mint: #b4e1d6;
+        }
+
+        html {
+            font-size: 22px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif !important;
+            background: var(--c-paper);
+            color: var(--c-black);
+        }
+
+        .reveal {
+            color: var(--c-black);
+        }
+
+        .reveal .slides section {
+            overflow: hidden;
+        }
+
+        .reveal .progress {
+            height: 10px;
+            background: var(--bg-light-blue);
+        }
+
+        .reveal .progress span {
+            background: var(--c-magenta) !important;
+        }
+
+        .reveal .slide-number,
+        .reveal .controls {
+            display: none !important;
+        }
+
+        .reveal h1,
+        .reveal h2,
+        .reveal h3,
+        .reveal h4 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            text-transform: none;
+            letter-spacing: -0.03em;
+            color: var(--c-black);
+            line-height: 1.02;
+        }
+
+        .reveal p,
+        .reveal div,
+        .reveal span,
+        .reveal td,
+        .reveal th,
+        .reveal li {
+            font-size: 1.2rem;
+            line-height: 1.25;
+            font-weight: 500;
+        }
+
+        .text-blue {
+            color: var(--c-blue) !important;
+        }
+
+        .text-magenta {
+            color: var(--c-magenta) !important;
+        }
+
+        .text-yellow {
+            color: var(--c-yellow) !important;
+        }
+
+        .text-teal {
+            color: var(--c-teal) !important;
+        }
+
+        .stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 960px;
+            padding: 1rem 1.2rem;
+            overflow: hidden;
+            display: grid;
+            gap: 0.8rem;
+            align-content: center;
+        }
+
+        .art-shell {
+            border: 4px solid var(--c-black);
+            border-top-width: 14px;
+            border-top-color: var(--c-blue);
+            background: var(--c-white);
+            box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-title {
+            font-size: 5.2rem !important;
+            margin: 0;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem !important;
+            margin: 0.4rem 0 0;
+            opacity: 0.86;
+        }
+
+        .shape {
+            position: absolute;
+            z-index: 0;
+            border: 4px solid var(--c-black);
+            opacity: 0.95;
+        }
+
+        .shape.blue {
+            background: var(--c-blue);
+        }
+
+        .shape.magenta {
+            background: var(--c-magenta);
+        }
+
+        .shape.yellow {
+            background: var(--c-yellow);
+        }
+
+        .shape.teal {
+            background: var(--c-teal);
+        }
+
+        .shape.mint {
+            background: var(--c-mint);
+        }
+
+        .shape.dot {
+            border-radius: 999px;
+        }
+
+        .z-top {
+            position: relative;
+            z-index: 3;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .chip {
+            border: 3px solid var(--c-black);
+            background: var(--c-white);
+            padding: 0.45rem 0.9rem;
+            font-size: 1.05rem;
+            font-weight: 800;
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .chip.blue {
+            background: var(--c-blue);
+        }
+
+        .chip.magenta {
+            background: var(--c-magenta);
+            color: var(--c-white);
+        }
+
+        .chip.yellow {
+            background: var(--c-yellow);
+        }
+
+        .chip.teal {
+            background: var(--c-teal);
+            color: var(--c-white);
+        }
+
+        .panel-title {
+            font-size: 3.2rem !important;
+            margin: 0;
+        }
+
+        .panel-sub {
+            font-size: 1.2rem !important;
+            margin: 0.2rem 0 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.8rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.8rem;
+        }
+
+        .card {
+            border: 3px solid var(--c-black);
+            background: var(--c-white);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.08);
+            padding: 0.9rem;
+            text-align: left;
+            display: grid;
+            gap: 0.25rem;
+        }
+
+        .card.blue {
+            background: var(--bg-light-blue);
+        }
+
+        .card.magenta {
+            background: var(--bg-light-pink);
+        }
+
+        .card.yellow {
+            background: var(--bg-light-yellow);
+        }
+
+        .card.mint {
+            background: var(--bg-mint);
+        }
+
+        .card.teal {
+            background: var(--c-teal);
+            color: var(--c-white);
+        }
+
+        .card.teal h4,
+        .card.teal p,
+        .card.teal li {
+            color: var(--c-white);
+        }
+
+        .card h4 {
+            font-size: 1.4rem;
+            margin: 0;
+        }
+
+        .card p {
+            font-size: 1.02rem;
+            margin: 0;
+        }
+
+        .flow-bar {
+            border: 3px solid var(--c-black);
+            background: var(--c-white);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.1);
+            padding: 0.55rem;
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 0.45rem;
+            align-items: center;
+        }
+
+        .flow-node {
+            border: 3px solid var(--c-black);
+            padding: 0.45rem;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 800;
+            background: var(--c-white);
+        }
+
+        .flow-node.blue {
+            background: var(--bg-light-blue);
+        }
+
+        .flow-node.magenta {
+            background: var(--bg-light-pink);
+        }
+
+        .flow-node.yellow {
+            background: var(--bg-light-yellow);
+        }
+
+        .flow-node.mint {
+            background: var(--bg-mint);
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--c-magenta);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.7rem;
+        }
+
+        .step-card {
+            border: 3px solid var(--c-black);
+            background: var(--c-white);
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.1);
+            padding: 0.75rem;
+            display: grid;
+            gap: 0.25rem;
+            text-align: left;
+        }
+
+        .step-card .n {
+            font-size: 1.65rem;
+            font-weight: 900;
+            color: var(--c-teal);
+        }
+
+        .step-card .title {
+            font-size: 1.08rem;
+            font-weight: 900;
+        }
+
+        .step-card .desc {
+            font-size: 0.98rem;
+            margin: 0;
+        }
+
+        .step-card.blue {
+            background: var(--bg-light-blue);
+        }
+
+        .step-card.magenta {
+            background: var(--bg-light-pink);
+        }
+
+        .step-card.yellow {
+            background: var(--bg-light-yellow);
+        }
+
+        .step-card.mint {
+            background: var(--bg-mint);
+        }
+
+        .final-badge {
+            border: 4px solid var(--c-black);
+            background: var(--bg-light-yellow);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.12);
+            padding: 0.8rem 1rem;
+            font-size: 1.2rem;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .custom-nav-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--c-blue);
+            border: 3px solid var(--c-black);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.1);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .slide-counter {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--c-black);
+            padding: 0.25rem 0.55rem;
+            border-left: 4px solid var(--c-magenta);
+            min-width: 88px;
+            text-align: center;
+            background: var(--c-white);
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .nav-btn {
+            width: 42px;
+            height: 42px;
+            border: 2px solid var(--c-black);
+            background: var(--c-white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--c-black);
+            transition: 0.15s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--c-magenta);
+            color: var(--c-white);
+            border-color: var(--c-magenta);
+        }
+
+        .nav-separator {
+            width: 2px;
+            height: 24px;
+            background: var(--c-line);
+        }
+
+        @media (max-width: 1200px) {
+            html {
+                font-size: 18px;
+            }
+
+            .grid-2,
+            .grid-3,
+            .steps-grid,
+            .flow-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .stage {
+                min-height: unset;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <section data-transition="zoom">
+                <div class="stage">
+                    <div class="shape blue" style="width:220px;height:220px;left:2%;top:6%;"></div>
+                    <div class="shape magenta" style="width:190px;height:190px;right:4%;top:14%;"></div>
+                    <div class="shape teal dot" style="width:170px;height:170px;right:20%;bottom:8%;"></div>
+
+                    <div class="z-top art-shell" style="padding:1.1rem 1.2rem; max-width:100%;">
+                        <h1 class="hero-title">D09: Build Pipelines</h1>
+                        <p class="hero-subtitle">Short, focused, high-level guide</p>
+                    </div>
+
+                    <div class="z-top chips">
+                        <span class="chip blue fragment fade-up"><i class="fa-solid fa-bullseye"></i> Scope only D09</span>
+                        <span class="chip magenta fragment fade-up"><i class="fa-solid fa-rocket"></i> Build + deploy workflows</span>
+                        <span class="chip teal fragment fade-up"><i class="fa-solid fa-cloud-arrow-up"></i> Azure release targets</span>
+                    </div>
+                </div>
+            </section>
+
+            <section data-transition="concave">
+                <div class="stage">
+                    <div class="art-shell" style="padding:0.8rem 1rem;">
+                        <h2 class="panel-title">D09 in one slide</h2>
+                        <p class="panel-sub">Extend GitHub Actions so core applications are built and deployed automatically to production targets.</p>
+                    </div>
+                    <div class="grid-3">
+                        <div class="card blue fragment fade-up">
+                            <h4><i class="fa-solid fa-film text-teal"></i> FR01: Movies pipeline</h4>
+                            <p>Build container image and push to Azure Container Registry.</p>
+                            <p>Deploy to Azure Container Apps with production env-vars/secrets.</p>
+                        </div>
+                        <div class="card yellow fragment fade-up">
+                            <h4><i class="fa-solid fa-desktop text-magenta"></i> FR02: Backoffice pipeline</h4>
+                            <p>Build release artifact and zip package.</p>
+                            <p>Deploy zip to Azure Web App.</p>
+                        </div>
+                        <div class="card magenta fragment fade-up">
+                            <h4><i class="fa-solid fa-ticket text-black"></i> FR03: Ticketing pipeline</h4>
+                            <p>Build/push image and deploy to Container Apps.</p>
+                            <p>Use runtime config + secret references for production.</p>
+                        </div>
+                    </div>
+                    <div class="final-badge fragment fade-up">D09 focus: reliable release automation for Movies, Backoffice, and Ticketing.</div>
+                </div>
+            </section>
+
+            <section data-transition="slide">
+                <div class="stage">
+                    <div class="art-shell" style="padding:0.75rem 1rem;">
+                        <h2 class="panel-title">Step-by-step plan</h2>
+                        <p class="panel-sub">Recommended sequence to deliver D09 safely.</p>
+                    </div>
+                    <div class="steps-grid">
+                        <div class="step-card blue fragment fade-up">
+                            <div class="n">1</div>
+                            <div class="title">Baseline each repository</div>
+                            <p class="desc">Confirm build/test workflow and production settings file.</p>
+                        </div>
+                        <div class="step-card yellow fragment fade-up">
+                            <div class="n">2</div>
+                            <div class="title">FR01 Movies build job</div>
+                            <p class="desc">Publish container image and push to Azure Container Registry.</p>
+                        </div>
+                        <div class="step-card magenta fragment fade-up">
+                            <div class="n">3</div>
+                            <div class="title">FR01 Movies deploy job</div>
+                            <p class="desc">Deploy to Container Apps with key vault secret references.</p>
+                        </div>
+                        <div class="step-card mint fragment fade-up">
+                            <div class="n">4</div>
+                            <div class="title">FR02 Backoffice pipeline</div>
+                            <p class="desc">Create build zip artifact and deploy to Azure Web App.</p>
+                        </div>
+                        <div class="step-card blue fragment fade-up">
+                            <div class="n">5</div>
+                            <div class="title">FR03 Ticketing pipeline</div>
+                            <p class="desc">Adapt app for Cosmos constraints, then build/deploy container.</p>
+                        </div>
+                        <div class="step-card yellow fragment fade-up">
+                            <div class="n">6</div>
+                            <div class="title">Integration verification</div>
+                            <p class="desc">Test Movies, Backoffice, and Ticketing interaction in production URLs.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section data-transition="concave">
+                <div class="stage">
+                    <div class="art-shell" style="padding:0.75rem 1rem;">
+                        <h2 class="panel-title">Done means</h2>
+                        <p class="panel-sub">Minimal acceptance checklist for D09.</p>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card teal fragment fade-up">
+                            <h4><i class="fa-solid fa-check-double text-yellow"></i> Functional</h4>
+                            <p>FR01-FR03 workflows run successfully end-to-end.</p>
+                            <p>Each component is reachable after deployment.</p>
+                            <p>Cross-service behavior is validated with smoke tests.</p>
+                        </div>
+                        <div class="card mint fragment fade-up">
+                            <h4><i class="fa-solid fa-screwdriver-wrench text-magenta"></i> Technical</h4>
+                            <p>Secrets and variables are injected through GitHub Actions safely.</p>
+                            <p>Production environment variables map correctly to app configuration.</p>
+                            <p>Deployment jobs are reproducible and versioned in workflow files.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section data-transition="fade">
+                <div class="stage" style="align-content:center;">
+                    <div class="shape teal" style="width:220px;height:220px;left:5%;top:18%;"></div>
+                    <div class="shape mint" style="width:200px;height:200px;right:6%;top:22%;"></div>
+                    <div class="shape magenta" style="width:220px;height:220px;left:42%;bottom:8%;"></div>
+
+                    <div class="z-top art-shell" style="padding:1rem 1.2rem; text-align:center;">
+                        <h1 style="font-size:4.7rem; margin:0;">D09 Ready</h1>
+                        <p class="hero-subtitle">Build Pipelines</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="custom-nav-panel">
+        <div class="slide-counter">
+            <span id="current-slide">1</span>/<span id="total-slides">1</span>
+        </div>
+        <div class="nav-separator"></div>
+        <div class="nav-controls">
+            <button class="nav-btn" onclick="Reveal.prev()" title="Previous slide"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="nav-btn" onclick="Reveal.next()" title="Next slide"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/highlight.min.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: false,
+            progress: true,
+            center: true,
+            hash: false,
+            slideNumber: false,
+            width: 1920,
+            height: 1080,
+            margin: 0.03,
+            transition: 'slide',
+            backgroundTransition: 'fade',
+            autoAnimateDuration: 0.8,
+            plugins: [RevealHighlight]
+        });
+
+        function updateSlideCounter() {
+            const indices = Reveal.getIndices();
+            const totalSlides = Reveal.getTotalSlides();
+            const slideNumber = indices.h + 1;
+            document.getElementById('current-slide').textContent = slideNumber;
+            document.getElementById('total-slides').textContent = totalSlides;
+            history.replaceState(null, null, '#' + slideNumber);
+        }
+
+        function navigateFromHash() {
+            const hash = window.location.hash.slice(1);
+            const slideNumber = parseInt(hash, 10);
+            if (!Number.isNaN(slideNumber) && slideNumber > 0) {
+                Reveal.slide(slideNumber - 1);
+            }
+        }
+
+        Reveal.on('slidechanged', updateSlideCounter);
+        Reveal.on('ready', () => {
+            navigateFromHash();
+            updateSlideCounter();
+        });
+
+        window.addEventListener('hashchange', navigateFromHash);
+    </script>
+</body>
+
+</html>

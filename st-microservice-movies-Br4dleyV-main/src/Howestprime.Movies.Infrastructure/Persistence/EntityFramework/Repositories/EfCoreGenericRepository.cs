@@ -1,0 +1,42 @@
+using Aornis;
+using Microsoft.EntityFrameworkCore;
+using Howestprime.Movies.Domain.Shared;
+using Howestprime.Movies.Infrastructure.Persistence.EntityFramework.Configuration;
+
+namespace Howestprime.Movies.Infrastructure.Persistence.EntityFramework.Repositories;
+
+public abstract class EfCoreGenericRepository<TAggregateRoot, TId>
+(
+    DomainDbContext context
+)
+    : IRepository<TAggregateRoot, TId>
+    where TAggregateRoot : AggregateRoot<TId>
+    where TId : struct, IEntityId
+{
+    protected readonly DomainDbContext _context = context;
+    public virtual Task<bool> Exists(TId id)
+    {
+        return _context
+            .Set<TAggregateRoot>()
+            .AnyAsync(aggregateRoot => aggregateRoot.Id.Equals(id));
+    }
+
+    public virtual Task<Optional<TAggregateRoot>> ById(TId id)
+    {
+        return Task.FromResult(Optional.Of(_context.Set<TAggregateRoot>().Find(id)));
+    }
+
+    public virtual Task Save(TAggregateRoot aggregateRoot)
+    {
+        if (_context.Entry(aggregateRoot).State == EntityState.Detached)
+            return _context.Set<TAggregateRoot>().AddAsync(aggregateRoot).AsTask();
+
+        return Task.CompletedTask;
+    }
+
+    public virtual Task Remove(TAggregateRoot aggregateRoot)
+    {
+        _context.Set<TAggregateRoot>().Remove(aggregateRoot);
+        return Task.CompletedTask;
+    }
+}

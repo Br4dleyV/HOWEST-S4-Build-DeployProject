@@ -1,0 +1,156 @@
+import { createMockDomainEventBus } from '@/tests/Unit/Application/Shared/MockDomainEventBus.ts';
+import { assertEquals, assertRejects } from '@std/assert';
+
+import type { Logger } from '@/Application/Ports/mod.ts';
+import { MarkOrderAsPaid } from '@/Application/Ticketing/Orders/mod.ts';
+import { Movie } from '@/Domain/Ticketing/Movies/mod.ts';
+import { Order } from '@/Domain/Ticketing/Orders/mod.ts';
+import type { AggregateRoot, EntityId, Repository } from '@/Domain/Shared/mod.ts';
+import { createMockUnitOfWork } from '@/tests/Unit/Application/Shared/mod.ts';
+import { createMockOrderRepository } from '@/tests/Unit/Application/Shared/Repositories/mod.ts';
+
+const mockLogger: Logger = {
+    debug: () => {},
+    info: () => {},
+    warn: () => {},
+    error: () => {},
+};
+
+Deno.test('[Unit] - MarkOrderAsPaid - execute - valid input - marks order as paid and raises event', async () => {
+    const movie = Movie.create(
+        'b3f9a2d3-6f1c-4e0a-9a1d-123456789abc',
+        'Example Movie',
+        120,
+        ['Drama'],
+        'https://example.com/poster.png',
+        '12+',
+    );
+
+    const order = Order.createFromBooking(
+        '32d33834-6fd6-4eb6-b3aa-9b5f39001c5d',
+        movie,
+        'Room A',
+        new Date('2026-05-20T19:30:00.000Z'),
+        2,
+        1,
+        [12, 13, 14],
+    );
+
+    // Accept terms and add customer (prerequisites for marking as paid)
+    order.acceptTerms();
+
+    const orderRepository = createMockOrderRepository({ existingOrders: [order] });
+    const repositories = new Map<string, Repository<AggregateRoot<EntityId>, EntityId>>([
+        ['Order', orderRepository as unknown as Repository<AggregateRoot<EntityId>, EntityId>],
+    ]);
+
+    const eventBus = createMockDomainEventBus();
+    const unitOfWork = createMockUnitOfWork({ repositories, eventBus });
+    const useCase = new MarkOrderAsPaid(unitOfWork, mockLogger);
+
+    await useCase.execute({
+        orderId: order.id.value,
+    });
+
+    assertEquals(unitOfWork.doCalled, true);
+    assertEquals(unitOfWork.saveCalled, true);
+    assertEquals(orderRepository.saveCalled, true);
+    assertEquals(orderRepository.savedOrders[0]?.status.value, 'paid');
+    assertEquals(eventBus.publishCallCount, 1);
+    assertEquals(eventBus.publishedEvents[0]?.constructor.name, 'OrderPaid');
+});
+
+Deno.test('[Unit] - MarkOrderAsPaid - execute - order not found - rejects', async () => {
+    const orderRepository = createMockOrderRepository({ existingOrders: [] });
+    const repositories = new Map<string, Repository<AggregateRoot<EntityId>, EntityId>>([
+        ['Order', orderRepository as unknown as Repository<AggregateRoot<EntityId>, EntityId>],
+    ]);
+
+    const unitOfWork = createMockUnitOfWork({ repositories });
+    const useCase = new MarkOrderAsPaid(unitOfWork, mockLogger);
+
+    await assertRejects(
+        () => useCase.execute({
+            orderId: 'nonexistent-order-id',
+        }),
+        Error,
+    );
+});
+
+Deno.test('[Unit] - MarkOrderAsPaid - execute - order not open - rejects', async () => {
+    const movie = Movie.create(
+        'b3f9a2d3-6f1c-4e0a-9a1d-123456789abc',
+        'Example Movie',
+        120,
+        ['Drama'],
+        'https://example.com/poster.png',
+        '12+',
+    );
+
+    const order = Order.createFromBooking(
+        '32d33834-6fd6-4eb6-b3aa-9b5f39001c5d',
+        movie,
+        'Room A',
+        new Date('2026-05-20T19:30:00.000Z'),
+        2,
+        1,
+        [12, 13, 14],
+    );
+
+    // Accept terms and mark as paid
+    order.acceptTerms();
+    order.markAsPaid();
+
+    const orderRepository = createMockOrderRepository({ existingOrders: [order] });
+    const repositories = new Map<string, Repository<AggregateRoot<EntityId>, EntityId>>([
+        ['Order', orderRepository as unknown as Repository<AggregateRoot<EntityId>, EntityId>],
+    ]);
+
+    const unitOfWork = createMockUnitOfWork({ repositories });
+    const useCase = new MarkOrderAsPaid(unitOfWork, mockLogger);
+
+    await assertRejects(
+        () => useCase.execute({
+            orderId: order.id.value,
+        }),
+        Error,
+    );
+});
+
+Deno.test('[Unit] - MarkOrderAsPaid - execute - terms not accepted - rejects', async () => {
+    const movie = Movie.create(
+        'b3f9a2d3-6f1c-4e0a-9a1d-123456789abc',
+        'Example Movie',
+        120,
+        ['Drama'],
+        'https://example.com/poster.png',
+        '12+',
+    );
+
+    const order = Order.createFromBooking(
+        '32d33834-6fd6-4eb6-b3aa-9b5f39001c5d',
+        movie,
+        'Room A',
+        new Date('2026-05-20T19:30:00.000Z'),
+        2,
+        1,
+        [12, 13, 14],
+    );
+
+    // Do NOT accept terms
+
+    const orderRepository = createMockOrderRepository({ existingOrders: [order] });
+    const repositories = new Map<string, Repository<AggregateRoot<EntityId>, EntityId>>([
+        ['Order', orderRepository as unknown as Repository<AggregateRoot<EntityId>, EntityId>],
+    ]);
+
+    const unitOfWork = createMockUnitOfWork({ repositories });
+    const useCase = new MarkOrderAsPaid(unitOfWork, mockLogger);
+
+    await assertRejects(
+        () => useCase.execute({
+            orderId: order.id.value,
+        }),
+        Error,
+    );
+});

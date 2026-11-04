@@ -1,0 +1,21 @@
+<div class="image-preview-container">
+    <h2>Poster Preview</h2>
+
+    @if (ShowImage)
+    {
+        <div class="image-preview">
+            <img src="@PosterUrl" alt="Movie poster preview" />
+        </div>
+    }
+    else
+    {
+        <div class="image-placeholder">Poster preview unavailable</div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string PosterUrl { get; set; } = string.Empty;
+
+    private bool ShowImage => Uri.TryCreate(PosterUrl, UriKind.Absolute, out _);
+}

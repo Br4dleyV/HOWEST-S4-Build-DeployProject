@@ -1,0 +1,198 @@
+# This workflow will run on every push and pull request to the main branch. It consists of two jobs: one for running unit tests and another for collecting code coverage. The unit tests job checks out the code, sets up the Deno environment, and runs the tests. The coverage job does the same but also collects code coverage data, generates a report, checks if it meets the threshold, and uploads it as an artifact.
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  # Name of the Azure Container App / image repository for the ticketing microservice.
+  # Must match the name the client webapp is configured to call
+  # (VITE_APP_TICKETING_API_URL -> https://hp-wide-p-ticketing.<env-domain>).
+  AZ_CONTAINER_NAME: hp-wide-p-ticketing
+  # Image tag, using the commit SHA for traceability
+  CONTAINER_VERSION_TAG: ${{ github.sha }}
+  # Base URL of the movies microservice. Used by CreateOrderFromBooking.loadMovie
+  # to hydrate a movie that isn't already in the ticketing DB. Must match the
+  # movies container app (same value the client uses for VITE_APP_MOVIES_BASE_API_URL).
+  MOVIES_API_BASE_URL: https://hp-wide-p-movies.kindocean-49359fab.northeurope.azurecontainerapps.io
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Deno
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: v2.x
+        
+    - name: Deno check
+      run: deno check src/
+      
+    - name: Deno lint
+      run: deno lint src/
+      
+    - name: Run unit tests
+      run: deno test -A --clean
+    
+  coverage:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Deno
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: v2.x
+        
+    - name: Run tests with coverage
+      run: deno test -A --clean --coverage --coverage-raw-data-only
+      
+    - name: Generate coverage report
+      run: deno coverage --exclude=tests
+      
+    - name: Check coverage threshold
+      run: |
+        coverage_report="$(deno coverage --exclude=tests coverage)"
+        echo "$coverage_report"
+        
+        COVERAGE="$(echo "$coverage_report" | grep "All files" | awk -F'|' '{print $3}' | sed 's/\x1B\[[0-9;]*m//g' | tr -d '[:space:]')"
+        COVERAGE_INT="${COVERAGE%.*}"
+        
+        if [[ $COVERAGE_INT -lt 95 ]]; then
+          echo "Code coverage is below threshold of 95%"
+          exit 1
+        fi
+        
+        echo "Code coverage meets threshold of 95%: ${COVERAGE_INT}%"
+
+  build:
+    name: Push Docker image to Azure Container Registry
+    runs-on: ubuntu-latest
+    needs: coverage
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Login to registry ${{ vars.AZ_CONTAINER_REGISTRY }}
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ vars.AZ_CONTAINER_REGISTRY }}
+          username: ${{ secrets.HOWESTPRIME_WIDE_CI_SERVICE_PRINCIPAL }}
+          password: ${{ secrets.HOWESTPRIME_WIDE_CI_SERVICE_PRINCIPAL_PASSWORD }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ vars.AZ_CONTAINER_REGISTRY }}/${{ env.AZ_CONTAINER_NAME }}:${{ env.CONTAINER_VERSION_TAG }}
+
+  deploy:
+    name: Deploy Docker image to Azure Container Apps
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        run: az login --service-principal --username ${{ secrets.HOWESTPRIME_WIDE_CI_SERVICE_PRINCIPAL }} --password ${{ secrets.HOWESTPRIME_WIDE_CI_SERVICE_PRINCIPAL_PASSWORD }} --tenant ${{ vars.AZ_TENANT_ID }}
+
+      - name: Deploy to Azure Container Apps
+        run: |
+          set -e
+
+          NAME=${{ env.AZ_CONTAINER_NAME }}
+          RG=${{ vars.AZ_RESOURCE_GROUP }}
+          IMAGE=${{ vars.AZ_CONTAINER_REGISTRY }}/${{ env.AZ_CONTAINER_NAME }}:${{ env.CONTAINER_VERSION_TAG }}
+
+          SECRETS=(
+            "db-password=keyvaultref:${{ vars.HOWESTPRIME_TICKETING_P_DOCUMENTDB_PASSWORD_URI }},identityref:${{ vars.HOWESTPRIME_WIDE_MI_KEYVAULTREADER_URI }}"
+            "mb-password=keyvaultref:${{ vars.HOWESTPRIME_WIDE_P_MESSAGEBROKER_PASSWORD_URI }},identityref:${{ vars.HOWESTPRIME_WIDE_MI_KEYVAULTREADER_URI }}"
+          )
+
+          ENV_VARS=(
+            "PERSISTENCE_MONGO_DB_PROTOCOL=${{ vars.HOWESTPRIME_TICKETING_P_DOCUMENTDB_PROTOCOL }}"
+            "PERSISTENCE_MONGO_DB_USER=${{ vars.HOWESTPRIME_TICKETING_P_DOCUMENTDB_LOGIN }}"
+            "PERSISTENCE_MONGO_DB_PORT=${{ vars.HOWESTPRIME_TICKETING_P_DOCUMENTDB_PORT }}"
+            "PERSISTENCE_MONGO_DB_HOST=${{ vars.HOWESTPRIME_TICKETING_P_DOCUMENTDB_HOST }}"
+            "PERSISTENCE_MONGO_DB_NAME=${{ vars.HOWESTPRIME_TICKETING_P_DOCUMENTDB_DB }}"
+            "PERSISTENCE_MONGO_DB_OPTIONS=${{ vars.HOWESTPRIME_TICKETING_P_DOCUMENTDB_OPTIONS }}"
+            "PERSISTENCE_MONGO_DB_PASS=secretref:db-password"
+            "MESSAGING_LAVINMQ_HOSTNAME=${{ vars.HOWESTPRIME_WIDE_P_MESSAGEBROKER_HOSTNAME }}"
+            "MESSAGING_LAVINMQ_VHOST=${{ vars.HOWESTPRIME_WIDE_P_MESSAGEBROKER_VHOST }}"
+            "MESSAGING_LAVINMQ_PASS=secretref:mb-password"
+            "MESSAGING_LAVINMQ_USER=${{ vars.HOWESTPRIME_WIDE_P_MESSAGEBROKER_LOGIN }}"
+            "MESSAGING_LAVINMQ_ASYNCAPI_PATH=${{ vars.HOWESTPRIME_TICKETING_P_ASYNCAPI_URI }}"
+            "WEBAPI_PORT=${{ vars.HOWESTPRIME_TICKETING_P_WEBAPI_PORT }}"
+            "WEBAPI_HOST=${{ vars.HOWESTPRIME_TICKETING_P_WEBAPI_HOST }}"
+            "MOVIES_API_BASE_URL=${{ env.MOVIES_API_BASE_URL }}"
+          )
+
+          # Create-or-update so re-runs don't fail when the app already exists.
+          if az containerapp show --name "$NAME" --resource-group "$RG" >/dev/null 2>&1; then
+            echo "Container app $NAME exists - updating registry, secrets, image and env vars."
+
+            az containerapp identity assign \
+              --name "$NAME" \
+              --resource-group "$RG" \
+              --user-assigned "${{ vars.HOWESTPRIME_WIDE_MI_KEYVAULTREADER_URI }}"
+
+            az containerapp registry set \
+              --name "$NAME" \
+              --resource-group "$RG" \
+              --server ${{ vars.AZ_CONTAINER_REGISTRY }} \
+              --username ${{ secrets.HOWESTPRIME_WIDE_CI_SERVICE_PRINCIPAL }} \
+              --password ${{ secrets.HOWESTPRIME_WIDE_CI_SERVICE_PRINCIPAL_PASSWORD }}
+
+            az containerapp secret set \
+              --name "$NAME" \
+              --resource-group "$RG" \
+              --secrets "${SECRETS[@]}"
+
+            az containerapp update \
+              --name "$NAME" \
+              --resource-group "$RG" \
+              --image "$IMAGE" \
+              --set-env-vars "${ENV_VARS[@]}"
+          else
+            echo "Container app $NAME does not exist - creating."
+
+            az containerapp create \
+              --name "$NAME" \
+              --resource-group "$RG" \
+              --environment ${{ vars.AZ_CONTAINER_ENVIRONMENT }} \
+              --image "$IMAGE" \
+              --registry-server ${{ vars.AZ_CONTAINER_REGISTRY }} \
+              --registry-username ${{ secrets.HOWESTPRIME_WIDE_CI_SERVICE_PRINCIPAL }} \
+              --registry-password ${{ secrets.HOWESTPRIME_WIDE_CI_SERVICE_PRINCIPAL_PASSWORD }} \
+              --user-assigned "${{ vars.HOWESTPRIME_WIDE_MI_KEYVAULTREADER_URI }}" \
+              --secrets "${SECRETS[@]}" \
+              --env-vars "${ENV_VARS[@]}"
+          fi
+
+          az containerapp ingress enable \
+            --name "$NAME" \
+            --resource-group "$RG" \
+            --type external \
+            --target-port 8000

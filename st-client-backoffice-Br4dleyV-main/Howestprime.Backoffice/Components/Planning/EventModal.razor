@@ -1,0 +1,96 @@
+﻿@using Howestprime.Movies.ApiClient.Responses
+
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay @(Show ? "active" : "")" id="addEventModal" @onclick:stopPropagation="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add Movie Event</h2>
+        </div>
+
+        <!-- The form to choose Room, Time, Movie -->
+        <form class="modal-form" @onsubmit="HandleSubmitAsync">
+            <div class="form-group">
+                <label for="modalRoom">Room</label>
+                <select id="modalRoom" value="@SelectedRoom" @onchange="OnSelectedRoomChanged" class="form-control" required>
+                    <option value="">-- Choose a Room --</option>
+                    <option value="019d059e-d220-71db-8a1a-ec7569492999">Room 1</option>
+                    <option value="019d059e-d220-75fe-b936-0a97cd75216e">Room 2</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="modalTime">Time</label>
+                <select id="modalTime" value="@SelectedTime" @onchange="OnSelectedTimeChanged" class="form-control" required>
+                    <option value="">-- Choose a Time --</option>
+                    <option value="15:00">15:00</option>
+                    <option value="19:00">19:00</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="modalMovie">Movie</label>
+                <select id="modalMovie" value="@SelectedMovie" @onchange="OnSelectedMovieChanged" class="form-control" required>
+                    <option value="">-- Choose a Movie --</option>
+                    @foreach (var movie in AvailableMovies)
+                    {
+                        <option value="@movie.Id">@movie.Title</option>
+                    }
+                </select>
+            </div>
+
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div id="modalError" class="modal-error">@ErrorMessage</div>
+            }
+
+            <button type="submit" class="modal-submit-btn">Save Event</button>
+            <button type="button" class="modal-submit-btn" style="margin-top:10px; background:#999;" @onclick="OnClose">Cancel</button>
+        </form>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public string SelectedRoom { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> SelectedRoomChanged { get; set; }
+
+    [Parameter]
+    public string SelectedTime { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> SelectedTimeChanged { get; set; }
+
+    [Parameter]
+    public string SelectedMovie { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> SelectedMovieChanged { get; set; }
+
+    [Parameter]
+    public List<Movie> AvailableMovies { get; set; } = [];
+
+    [Parameter]
+    public string ErrorMessage { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private Task HandleSubmitAsync() => OnSave.InvokeAsync();
+
+    private Task OnSelectedRoomChanged(ChangeEventArgs e) =>
+        SelectedRoomChanged.InvokeAsync(e.Value?.ToString() ?? string.Empty);
+
+    private Task OnSelectedTimeChanged(ChangeEventArgs e) =>
+        SelectedTimeChanged.InvokeAsync(e.Value?.ToString() ?? string.Empty);
+
+    private Task OnSelectedMovieChanged(ChangeEventArgs e) =>
+        SelectedMovieChanged.InvokeAsync(e.Value?.ToString() ?? string.Empty);
+}

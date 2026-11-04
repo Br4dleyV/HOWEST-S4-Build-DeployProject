@@ -1,0 +1,562 @@
+asyncapi: 3.1.0
+info:
+    title: Howestprime.Ticketing
+    version: 1.0.0
+    description: |
+        This AsyncAPI specification describes the message broker configuration
+        for suggestion create request/response flows in the Howestprime.Ticketing SAAS.
+    x-metadata:
+        BoundedContext: Ticketing
+
+defaultContentType: application/json
+
+servers:
+    messageBroker:
+        host: '{host}'
+        protocol: amqp
+        description: Local AMQP message broker
+        variables:
+            host:
+                default: localhost:5672
+                description: Host and port of the AMQP broker
+        bindings:
+            amqp:
+                virtualHost: /
+
+channels:
+    thirdparty.service.suggestions.sendcreatesuggestion:
+        address: thirdparty.service.suggestions.sendcreatesuggestion
+        title: Send create suggestion
+        messages:
+            SuggestionSendCreateSuggestion:
+                $ref: '#/components/messages/SuggestionSendCreateSuggestion'
+        bindings:
+            amqp:
+                is: routingKey
+                exchange:
+                    name: howestprime
+                    type: topic
+                    routingKey: thirdparty.service.suggestions.sendcreatesuggestion
+
+    howestprime.ticketing.suggestions.created:
+        address: howestprime.ticketing.suggestions.created
+        title: Suggestion created
+        messages:
+            SuggestionCreated:
+                $ref: '#/components/messages/SuggestionCreated'
+        bindings:
+            amqp:
+                is: routingKey
+                exchange:
+                    name: howestprime
+                    type: topic
+                    routingKey: howestprime.ticketing.suggestions.created
+
+    howestprime.movies.movie.movieregistered:
+        address: howestprime.movies.movie.movieregistered
+        title: Movie registered
+        messages:
+            MovieRegistered:
+                $ref: '#/components/messages/MovieRegistered'
+        bindings:
+            amqp:
+                is: routingKey
+                exchange:
+                    name: howestprime
+                    type: topic
+                    routingKey: howestprime.movies.movie.movieregistered
+
+    howestprime.movies.movieevent.bookingopened:
+        address: howestprime.movies.movieevent.bookingopened
+        title: Booking opened
+        messages:
+            BookingOpened:
+                $ref: '#/components/messages/BookingOpened'
+        bindings:
+            amqp:
+                is: routingKey
+                exchange:
+                    name: howestprime
+                    type: topic
+                    routingKey: howestprime.movies.movieevent.bookingopened
+
+    howestprime.ticketing.payment.paymentsuccess:
+        address: howestprime.ticketing.payment.paymentsuccess
+        title: Payment succeeded
+        messages:
+            PaymentSuccess:
+                $ref: '#/components/messages/PaymentSuccess'
+        bindings:
+            amqp:
+                is: routingKey
+                exchange:
+                    name: howestprime
+                    type: topic
+                    routingKey: howestprime.ticketing.payment.paymentsuccess
+
+    howestprime.ticketing.payment.paymentfailed:
+        address: howestprime.ticketing.payment.paymentfailed
+        title: Payment failed
+        messages:
+            PaymentFailed:
+                $ref: '#/components/messages/PaymentFailed'
+        bindings:
+            amqp:
+                is: routingKey
+                exchange:
+                    name: howestprime
+                    type: topic
+                    routingKey: howestprime.ticketing.payment.paymentfailed
+
+    howestprime.ticketing.orders.ticketsreleased:
+        address: howestprime.ticketing.orders.ticketsreleased
+        title: Tickets released
+        messages:
+            TicketsReleased:
+                $ref: '#/components/messages/TicketsReleased'
+        bindings:
+            amqp:
+                is: routingKey
+                exchange:
+                    name: howestprime
+                    type: topic
+                    routingKey: howestprime.ticketing.orders.ticketsreleased
+
+operations:
+    WhenSuggestionSendCreateSuggestion:
+        action: receive
+        channel:
+            $ref: '#/channels/thirdparty.service.suggestions.sendcreatesuggestion'
+        description: |
+            Triggered when an external producer requests suggestion creation.
+            Consumes the message and delegates to the CreateSuggestion command use case.
+        messages:
+            - $ref: '#/channels/thirdparty.service.suggestions.sendcreatesuggestion/messages/SuggestionSendCreateSuggestion'
+
+    sendSuggestionCreated:
+        action: send
+        channel:
+            $ref: '#/channels/howestprime.ticketing.suggestions.created'
+        description: |
+            Triggered after a suggestion is created successfully.
+            Publishes the created suggestion payload for downstream consumers.
+        messages:
+            - $ref: '#/channels/howestprime.ticketing.suggestions.created/messages/SuggestionCreated'
+
+    sendPaymentSuccess:
+        action: send
+        channel:
+            $ref: '#/channels/howestprime.ticketing.payment.paymentsuccess'
+        description: |
+            Triggered after a payment is processed successfully.
+            Publishes the payment outcome for downstream consumers.
+        messages:
+            - $ref: '#/channels/howestprime.ticketing.payment.paymentsuccess/messages/PaymentSuccess'
+
+    sendPaymentFailed:
+        action: send
+        channel:
+            $ref: '#/channels/howestprime.ticketing.payment.paymentfailed'
+        description: |
+            Triggered after a payment fails.
+            Publishes the payment failure outcome for downstream consumers.
+        messages:
+            - $ref: '#/channels/howestprime.ticketing.payment.paymentfailed/messages/PaymentFailed'
+
+    sendTicketsReleased:
+        action: send
+        channel:
+            $ref: '#/channels/howestprime.ticketing.orders.ticketsreleased'
+        description: |
+            Triggered after tickets are released for a paid order.
+            Publishes the released tickets for downstream consumers.
+        messages:
+            - $ref: '#/channels/howestprime.ticketing.orders.ticketsreleased/messages/TicketsReleased'
+
+    WhenMovieRegistered:
+        action: receive
+        channel:
+            $ref: '#/channels/howestprime.movies.movie.movieregistered'
+        description: |
+            Triggered when a movie is registered.
+            Consumes the message and delegates to the SaveMovie command use case.
+        messages:
+            - $ref: '#/channels/howestprime.movies.movie.movieregistered/messages/MovieRegistered'
+
+    WhenBookingOpened:
+        action: receive
+        channel:
+            $ref: '#/channels/howestprime.movies.movieevent.bookingopened'
+        description: |
+            Triggered when a booking is opened in the Movies context.
+            Consumes the message and delegates to the CreateOrderFromBooking command use case.
+        messages:
+            - $ref: '#/channels/howestprime.movies.movieevent.bookingopened/messages/BookingOpened'
+
+components:
+    messages:
+        SuggestionSendCreateSuggestion:
+            name: SuggestionSendCreateSuggestion
+            title: Suggestion create request
+            summary: Request message to create a suggestion.
+            payload:
+                $ref: '#/components/schemas/SuggestionSendCreateSuggestionPayload'
+
+        SuggestionCreated:
+            name: SuggestionCreated
+            title: Suggestion created
+            summary: Event message emitted after a suggestion is created.
+            payload:
+                $ref: '#/components/schemas/SuggestionCreatedPayload'
+
+        MovieRegistered:
+            name: MovieRegistered
+            title: Movie registered
+            summary: Event message emitted after a movie is registered.
+            payload:
+                $ref: '#/components/schemas/MovieRegisteredPayload'
+
+        BookingOpened:
+            name: BookingOpened
+            title: Booking opened
+            summary: Event message emitted when a booking is opened.
+            payload:
+                $ref: '#/components/schemas/BookingOpenedPayload'
+
+        PaymentSuccess:
+            name: PaymentSuccess
+            title: Payment succeeded
+            summary: Event message emitted when a payment succeeds.
+            payload:
+                $ref: '#/components/schemas/PaymentSuccessPayload'
+
+        PaymentFailed:
+            name: PaymentFailed
+            title: Payment failed
+            summary: Event message emitted when a payment fails.
+            payload:
+                $ref: '#/components/schemas/PaymentFailedPayload'
+
+        TicketsReleased:
+            name: TicketsReleased
+            title: Tickets released
+            summary: Event message emitted when tickets are released for a paid order.
+            payload:
+                $ref: '#/components/schemas/TicketsReleasedPayload'
+
+    schemas:
+        SuggestionSendCreateSuggestionPayload:
+            type: object
+            required:
+                - email
+                - title
+                - description
+            properties:
+                email:
+                    type: string
+                    format: email
+                    maxLength: 254
+                    description: Email address of the suggestion author.
+                    example: user@example.com
+                title:
+                    type: string
+                    minLength: 3
+                    maxLength: 120
+                    description: Short title of the suggestion.
+                    example: Improve booking performance
+                description:
+                    type: string
+                    minLength: 10
+                    maxLength: 2000
+                    description: Detailed suggestion text.
+                    example: Cache frequently requested movie data to reduce latency.
+
+        SuggestionCreatedPayload:
+            type: object
+            required:
+                - suggestionId
+                - email
+                - title
+                - description
+                - occurredOn
+            properties:
+                suggestionId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the created suggestion.
+                    example: 8fdd8b8e-8de4-4b9a-8e16-868b72f4f469
+                email:
+                    type: string
+                    format: email
+                    maxLength: 254
+                    description: Email address of the suggestion author.
+                    example: user@example.com
+                title:
+                    type: string
+                    minLength: 3
+                    maxLength: 120
+                    description: Short title of the suggestion.
+                    example: Improve booking performance
+                description:
+                    type: string
+                    minLength: 10
+                    maxLength: 2000
+                    description: Detailed suggestion text.
+                    example: Cache frequently requested movie data to reduce latency.
+                occurredOn:
+                    type: string
+                    format: date-time
+                    description: UTC timestamp when the event occurred.
+                    example: '2026-03-24T10:15:30.000Z'
+
+        MovieRegisteredPayload:
+            type: object
+            required:
+                - movieId
+                - title
+                - durationMinutes
+                - genres
+                - posterUrl
+                - ageRating
+            properties:
+                movieId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the registered movie.
+                    example: b3f9a2d3-6f1c-4e0a-9a1d-123456789abc
+                title:
+                    type: string
+                    minLength: 1
+                    maxLength: 255
+                    description: Movie title.
+                    example: Example Movie
+                durationMinutes:
+                    type: integer
+                    minimum: 1
+                    description: Movie duration in minutes.
+                    example: 120
+                genres:
+                    type: array
+                    minItems: 1
+                    items:
+                        type: string
+                        minLength: 1
+                    description: Movie genres.
+                    example:
+                        - Drama
+                        - Thriller
+                posterUrl:
+                    type: string
+                    format: uri
+                    description: Poster image URL.
+                    example: https://example.com/poster.png
+                ageRating:
+                    type: string
+                    minLength: 1
+                    description: Age rating for the movie.
+                    example: '12+'
+
+        BookingOpenedPayload:
+            type: object
+            required:
+                - bookingId
+                - movieId
+                - room
+                - showtime
+                - standardVisitors
+                - discountedVisitors
+                - seatNumbers
+            properties:
+                bookingId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the booking.
+                    example: 32d33834-6fd6-4eb6-b3aa-9b5f39001c5d
+                movieId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the movie linked to the booking.
+                    example: b3f9a2d3-6f1c-4e0a-9a1d-123456789abc
+                room:
+                    type: string
+                    minLength: 1
+                    description: Cinema room where the movie is shown.
+                    example: Room A
+                showtime:
+                    type: string
+                    format: date-time
+                    description: Start date/time of the screening.
+                    example: '2026-05-20T19:30:00.000Z'
+                standardVisitors:
+                    type: integer
+                    minimum: 0
+                    description: Number of standard visitors.
+                    example: 2
+                discountedVisitors:
+                    type: integer
+                    minimum: 0
+                    description: Number of discounted visitors.
+                    example: 1
+                seatNumbers:
+                    type: array
+                    minItems: 1
+                    items:
+                        type: integer
+                        minimum: 1
+                    description: Reserved seat numbers.
+                    example:
+                        - 12
+                        - 13
+                        - 14
+
+        PaymentSuccessPayload:
+            type: object
+            required:
+                - paymentId
+                - orderId
+                - bookingId
+            properties:
+                paymentId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the payment.
+                    example: 3c4cbb07-6c9f-4c60-9f79-7cc5eb5cbf7d
+                orderId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the order.
+                    example: 8fdd8b8e-8de4-4b9a-8e16-868b72f4f469
+                bookingId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the booking.
+                    example: 32d33834-6fd6-4eb6-b3aa-9b5f39001c5d
+
+        PaymentFailedPayload:
+            type: object
+            required:
+                - paymentId
+                - orderId
+                - bookingId
+                - reason
+            properties:
+                paymentId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the payment.
+                    example: 3c4cbb07-6c9f-4c60-9f79-7cc5eb5cbf7d
+                orderId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the order.
+                    example: 8fdd8b8e-8de4-4b9a-8e16-868b72f4f469
+                bookingId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the booking.
+                    example: 32d33834-6fd6-4eb6-b3aa-9b5f39001c5d
+                reason:
+                    type: string
+                    minLength: 1
+                    description: Reason the payment failed.
+                    example: Payment declined by provider
+
+        TicketsReleasedPayload:
+            type: object
+            required:
+                - orderId
+                - bookingId
+                - tickets
+            properties:
+                orderId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the order.
+                    example: e3f9a2d3-6f1c-4e0a-9a1d-123456789abc
+                bookingId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the booking.
+                    example: 32d33834-6fd6-4eb6-b3aa-9b5f39001c5d
+                customer:
+                    oneOf:
+                        - type: 'null'
+                        - $ref: '#/components/schemas/CustomerData'
+                    description: Optional customer attached to the order.
+                tickets:
+                    type: array
+                    minItems: 1
+                    items:
+                        $ref: '#/components/schemas/TicketData'
+
+        CustomerData:
+            type: object
+            required:
+                - salutation
+                - firstName
+                - lastName
+                - email
+            properties:
+                salutation:
+                    type: string
+                    description: Customer salutation.
+                    example: Mr.
+                firstName:
+                    type: string
+                    description: Customer first name.
+                    example: John
+                lastName:
+                    type: string
+                    description: Customer last name.
+                    example: Doe
+                email:
+                    type: string
+                    format: email
+                    description: Customer email address.
+                    example: john.doe@example.com
+
+        TicketData:
+            type: object
+            required:
+                - ticketId
+                - seatNumber
+                - visitorType
+                - price
+                - movieId
+                - room
+                - showtime
+            properties:
+                ticketId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the ticket.
+                    example: d3f9a2d3-6f1c-4e0a-9a1d-123456789abc
+                seatNumber:
+                    type: integer
+                    minimum: 1
+                    description: Seat number.
+                    example: 12
+                visitorType:
+                    type: string
+                    enum: [standard, discounted]
+                    description: Visitor type used for pricing.
+                    example: standard
+                price:
+                    type: number
+                    minimum: 0
+                    description: Ticket price.
+                    example: 1200
+                movieId:
+                    type: string
+                    format: uuid
+                    description: Identifier of the movie snapshot.
+                    example: b3f9a2d3-6f1c-4e0a-9a1d-123456789abc
+                room:
+                    type: string
+                    description: Screening room.
+                    example: Room A
+                showtime:
+                    type: string
+                    format: date-time
+                    description: Showtime of the screening.
+                    example: '2026-05-20T19:30:00.000Z'

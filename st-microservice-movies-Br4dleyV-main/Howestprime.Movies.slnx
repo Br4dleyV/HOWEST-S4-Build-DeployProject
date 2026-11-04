@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Howestprime.Movies.Application/Howestprime.Movies.Application.csproj" />
+    <Project Path="src/Howestprime.Movies.Domain/Howestprime.Movies.Domain.csproj" />
+    <Project Path="src/Howestprime.Movies.Infrastructure/Howestprime.Movies.Infrastructure.csproj" />
+    <Project Path="src/Howestprime.Movies.Main/Howestprime.Movies.Main.csproj" />
+    <Project Path="src/Howestprime.Movies.Shared/Howestprime.Movies.Shared.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/UnitTests/UnitTests.csproj" />
+  </Folder>
+</Solution>

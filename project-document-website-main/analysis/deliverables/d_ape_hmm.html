@@ -1,0 +1,553 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>FR02: Microservice Movies - Build and Deploy Project</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-2459343d.css">
+        <link rel="stylesheet" href="../../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../project-doc-custom-e929efa1.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex-a4a4204a.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-3c4fab81.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Build and Deploy Project</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="microservice-movies"><a class="header" href="#microservice-movies">Microservice Movies</a></h1>
+<p>In this section we will create the necessary resources for the movies microservice.</p>
+<p><strong>Getting started:</strong> Create a new terraform file for this service.</p>
+<hr>
+<h2 id="create-postgres-username-and-password"><a class="header" href="#create-postgres-username-and-password">Create postgres username and password</a></h2>
+<h3 id="username"><a class="header" href="#username">Username</a></h3>
+<p>This is the first time we need to create a username. Create a new <strong>map</strong> variable just like the <code>resource_names</code> map variable to hold all the usernames. This way we have a single source of truth for all the usernames in the project and we can easily reference them in the code.</p>
+<p><strong>Task:</strong> Add a new entry for the movies microservice database username.</p>
+<h3 id="password"><a class="header" href="#password">Password</a></h3>
+<p>For the password we will use the <code>random_password</code> resource to generate a random password. This way we don’t have to hardcode the password in the code and we can easily reference it in the code.</p>
+<p>Create a new <code>random_password</code> resource for the movies microservice database password with the following parameters:</p>
+<ul>
+<li><strong>length:</strong> 16</li>
+<li><strong>special:</strong> true</li>
+<li><strong>override_characters:</strong> <code>_%@</code></li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> Using this resource requires the <code>random</code> provider. Make sure to add the provider to your <code>main.tf</code> file if you haven’t already, then run:</p>
+<pre><code class="language-bash">terraform init -upgrade
+</code></pre>
+</blockquote>
+<hr>
+<h2 id="create-a-postgres-server"><a class="header" href="#create-a-postgres-server">Create a postgres server</a></h2>
+<p>Create an <code>azurerm_postgresql_flexible_server</code> resource for the movies microservice. The flexible server is a managed database service that provides the database infrastructure.</p>
+<p><strong>Configuration requirements:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th>Value</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td>Name</td><td>Use your naming convention</td><td>Unique server identifier</td></tr>
+<tr><td>Location</td><td>Reference existing resources</td><td>Azure region</td></tr>
+<tr><td>Resource Group</td><td>Reference existing resources</td><td>Resource group name</td></tr>
+<tr><td>Admin Login</td><td>From username variable</td><td>Administrator username</td></tr>
+<tr><td>Admin Password</td><td>From random password</td><td>Generated password</td></tr>
+<tr><td>Version</td><td><code>13</code></td><td>PostgreSQL version</td></tr>
+<tr><td>SKU</td><td><code>B_Standard_B1ms</code></td><td>Basic tier for development</td></tr>
+<tr><td>Storage</td><td><code>32768</code> MB (32 GB)</td><td>Database storage size</td></tr>
+<tr><td>Backup Retention</td><td><code>7</code> days</td><td>Backup retention period</td></tr>
+<tr><td>Public Access</td><td><code>enabled</code></td><td>Allow external connections</td></tr>
+<tr><td>Lifecycle</td><td>Ignore zone changes</td><td>Prevent zone recreation</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="create-a-database-on-the-database-server"><a class="header" href="#create-a-database-on-the-database-server">Create a database on the database server</a></h2>
+<p>Create an <code>azurerm_postgresql_flexible_server_database</code> resource to provision a database within the PostgreSQL flexible server you created in the previous step.</p>
+<p><strong>Configuration requirements:</strong></p>
+<ul>
+<li><strong>Name:</strong> Logical name for the database (e.g., <code>"movies"</code>)</li>
+<li><strong>Server ID:</strong> Reference to your flexible server resource</li>
+<li><strong>Charset:</strong> <code>UTF8</code></li>
+<li><strong>Dependencies:</strong> Ensure the flexible server is created first</li>
+</ul>
+<hr>
+<h2 id="allow-external-ips"><a class="header" href="#allow-external-ips">Allow external ip’s</a></h2>
+<p>We need to connect to this database from multiple locations. Because we don’t know all the Howest ip ranges we will allow all ip’s.</p>
+<blockquote>
+<p>⚠️ <strong>Security Warning:</strong> This is not a good practice but for this project it is acceptable. In a production environment you should only allow the ip’s that need access to the database.</p>
+</blockquote>
+<h3 id="define-the-variable"><a class="header" href="#define-the-variable">Define the variable</a></h3>
+<p>Create a variable in <code>variables.tf</code> to hold the allowed ip ranges. This resource also depends on the flexible server.</p>
+<pre><code class="language-hcl"># example in variables.tf
+variable "howestprime_allowed_ip_ranges" {
+  description = "List allowed IP addresses for documentDB firewall rule"
+  type = list(object({
+    name             = string
+    start_ip_address = string
+    end_ip_address   = string
+  }))
+}
+# example in the auto.tfvars file
+# In real life, this would be a list of IP ranges for the Azure services that need access to the database.
+# But for the sake of simplicy and to easily connect from multiple locations, we will allow all IP ranges.
+howestprime_allowed_ip_ranges = [
+  {
+    name             = "allow_all"
+    start_ip_address = "0.0.0.0"
+    end_ip_address   = "255.255.255.255"
+  }
+]
+</code></pre>
+<h3 id="create-the-firewall-rules"><a class="header" href="#create-the-firewall-rules">Create the firewall rules</a></h3>
+<p>Add the firewall rules using a <code>for_each</code> loop:</p>
+<pre><code class="language-hcl">resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_ranges" {
+  for_each            = { for rule in var.howestprime_allowed_ip_ranges : rule.name =&gt; rule }
+
+  name                = each.value.name
+  server_id           = 
+  start_ip_address    = each.value.start_ip_address
+  end_ip_address      = each.value.end_ip_address
+
+  depends_on = []
+}
+</code></pre>
+<hr>
+<h2 id="add-the-generated-password-to-the-key-vault"><a class="header" href="#add-the-generated-password-to-the-key-vault">Add the generated password to the key vault</a></h2>
+<p>Create an <code>azurerm_key_vault_secret</code> resource to store the database password in the key vault. Other resources like the container apps will need secure access to this password.</p>
+<p><strong>Configuration requirements:</strong></p>
+<ul>
+<li><strong>Name:</strong> Appropriate name for the secret</li>
+<li><strong>Value:</strong> The generated random password from your <code>random_password</code> resource</li>
+<li><strong>Key Vault ID:</strong> Reference to the key vault ID</li>
+<li><strong>Dependencies:</strong> Ensure the secret is created after the flexible server and database are ready</li>
+</ul>
+<hr>
+<h2 id="test"><a class="header" href="#test">Test</a></h2>
+<p><strong>Verification steps:</strong></p>
+<ol>
+<li>Run Terraform to create the database resources</li>
+<li>Look up the connection string in the Azure portal</li>
+<li>Retrieve the password from the key vault</li>
+<li>Try to connect to the database from your favorite database GUI (e.g., DataGrip)</li>
+</ol>
+<hr>
+<h2 id="populate-the-microservice-movies-github-repository-with-secrets-and-variables"><a class="header" href="#populate-the-microservice-movies-github-repository-with-secrets-and-variables">Populate the microservice movies github repository with secrets and variables</a></h2>
+<h3 id="overview"><a class="header" href="#overview">Overview</a></h3>
+<p>The microservice movies build pipeline requires access to various secrets and variables, such as:</p>
+<ul>
+<li>🔑 Database password</li>
+<li>📨 Message broker password</li>
+<li>🔐 Key vault URL</li>
+<li>📦 Container registry URL</li>
+<li>And many more…</li>
+</ul>
+<p>By managing GitHub secrets and variables through Terraform, we maintain a single source of truth for all infrastructure configuration.</p>
+<h3 id="configure-the-github-provider"><a class="header" href="#configure-the-github-provider">Configure the GitHub Provider</a></h3>
+<p>Add the <code>github</code> provider to your <code>main.tf</code> file to enable Terraform to manage GitHub repository settings.</p>
+<p><strong>Implementation steps:</strong></p>
+<ol>
+<li>
+<p><strong>Create variables</strong>:</p>
+<ul>
+<li>GitHub personal access token</li>
+<li>GitHub organization/owner name</li>
+</ul>
+</li>
+<li>
+<p><strong>Create sensitive values for these variables</strong></p>
+</li>
+<li>
+<p><strong>Create a personal access token</strong> in GitHub:</p>
+<ul>
+<li>Navigate to: <em>GitHub Profile → Settings → Developer settings → Personal access tokens</em></li>
+<li>Grant permissions to:
+<ul>
+<li>Manage repository secrets</li>
+<li>Manage repository variables</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Add the GitHub provider</strong> configuration referencing your variables</p>
+</li>
+</ol>
+<h3 id="populate-repository-secrets-and-variables"><a class="header" href="#populate-repository-secrets-and-variables">Populate Repository Secrets and Variables</a></h3>
+<p>In the <code>howestprime_microservice_movies.tf</code> file we will add the code below. Because writing this code is a bit tedious, we will provide a template solution.</p>
+<blockquote>
+<p>⚠️ <strong>Important:</strong> This template solution is <strong>not meant</strong> to be copied and pasted. You should <strong>understand what each property means and how to use it</strong>. The template solution is provided as a reference—you will need to adapt the names and values to your own project.</p>
+</blockquote>
+<p><strong>What the code does:</strong></p>
+<ul>
+<li>✅ Creates GitHub Actions <strong>variables</strong> for all the necessary configuration values that the build pipeline needs</li>
+<li>✅ Creates GitHub Actions <strong>secrets</strong> for sensitive values like the service principal credentials</li>
+</ul>
+<p><strong>How it works:</strong></p>
+<ul>
+<li>Defines two local maps: <code>local.howestprime-movies-gh-action-variables</code> and <code>local.howestprime-movies-gh-action-secrets</code></li>
+<li>These maps hold the configuration for all the variables and secrets that need to be created in the GitHub repository</li>
+<li>Iterates over these maps to create the corresponding GitHub Actions variables and secrets using the <code>github_actions_variable</code> and <code>github_actions_secret</code> resources</li>
+</ul>
+<pre><code class="language-hcl">locals {
+  howestprime_repo_movies = "st-microservice-movies-matthias-blomme"
+  dotnet_connection_string = format(
+    "Server=%s;Database=movies;Port=%s;User Id={username};Password={password};Ssl Mode=Require;",
+    azurerm_postgresql_flexible_server.movies.fqdn,
+    5432
+  )
+
+  messagebroker_password_uri = regex("(https://[^/]+/secrets/[^/]+)", 
+    azurerm_key_vault_secret.howestprime_wide_p_messagebroker.id)[0]
+
+  psql_password_uri = regex("(https://[^/]+/secrets/[^/]+)", 
+    azurerm_key_vault_secret.howestprime_microservice_movies_db.id)[0]
+
+  howestprime-movies-gh-action-variables = {
+    howestprime_movies_p_plsql_login = {
+      variable_name = "howestprime_movies_p_psql_login"
+      value         = var.resource_login_names.howestprime_microservice_movies_db
+    }
+    howestprime_movies_p_plslq_connection_string = {
+      variable_name = "howestprime_movies_p_psql_connection_string"
+      value         = local.dotnet_connection_string
+    }
+    howestprime_wide_messagebroker_login = {
+      variable_name = "howestprime_wide_p_messagebroker_login"
+      value         = data.cloudamqp_credentials.local-admin.username
+    }
+    howestprime_wide_keyvault_uri = {
+      variable_name = "howestprime_wide_p_keyvault_uri"
+      value         = azurerm_key_vault.howestprime.vault_uri
+    }
+    howestprime_wide_mi_keyvaultreader_uri = {
+      variable_name = "howestprime_wide_mi_keyvaultreader_uri"
+      value         = azurerm_user_assigned_identity.keyvaultreader.id
+    }
+    az_tenant_id = {
+      variable_name = "az_tenant_id"
+      value         = var.azure_tenant_id
+    }
+    az_subscription_id = {
+      variable_name = "az_subscription_id"
+      value         = var.azure_subscription_id
+    }
+    az_resource_group = {
+      variable_name = "az_resource_group"
+      value         = azurerm_resource_group.howestprime.name
+    }
+    az_container_registry = {
+      variable_name = "az_container_registry"
+      value         = azurerm_container_registry.howestprime.login_server
+    }
+    az_container_environment = {
+      variable_name = "az_container_environment"
+      value         = azurerm_container_app_environment.howestprime.name
+    }
+    howestprime_movies_p_sqlsrv_password_uri = {
+      variable_name = "howestprime_movies_p_sqlsrv_password_uri"
+      value         = local.psql_password_uri
+    }
+    howestprime_wide_p_messagebroker_password_uri = {
+      variable_name = "howestprime_wide_p_messagebroker_password_uri"
+      value         = local.messagebroker_password_uri
+    }
+    howestprime_wide_p_messagebroker_uri = {
+      variable_name = "howestprime_wide_p_messagebroker_hostname"
+      value         = cloudamqp_instance.howestprime.host
+    }
+    howestprime_wide_p_messagebroker_vhost = {
+      variable_name = "howestprime_wide_p_messagebroker_vhost"
+      value         = cloudamqp_instance.howestprime.vhost
+    }
+  }
+  
+  howestprime-movies-gh-action-secrets = {
+    howestprime_wide_ci_service_principal = {
+      secret_name = "howestprime_wide_ci_service_principal"
+      value       =  azuread_application.github-ci-app.client_id
+    }
+    howestprime_wide_ci_service_principal_password = {
+      secret_name = "howestprime_wide_ci_service_principal_password"
+      value       = azuread_application_password.github-ci-app-password.value
+    }
+  }
+}
+
+resource "github_actions_variable" "howestprime_movies" {
+  for_each      = local.howestprime-movies-gh-action-variables
+  repository    = local.howestprime_repo_movies
+  variable_name = each.value.variable_name
+  value         = each.value.value
+}
+
+resource "github_actions_secret" "howestprime_movies" {
+  for_each      = local.howestprime-movies-gh-action-secrets
+  repository    = local.howestprime_repo_movies
+  secret_name   = each.value.secret_name
+  plaintext_value = each.value.value
+}
+</code></pre>
+<hr>
+<h2 id="give-the-github-service-principal-roles-to-manage-the-container-and-other-resources"><a class="header" href="#give-the-github-service-principal-roles-to-manage-the-container-and-other-resources">Give the github service principal roles to manage the container and other resources</a></h2>
+<p>Update the <code>CI service principal terraform</code> file to grant the service principal the necessary permissions to manage the container registry and resource group. These permissions enable the build pipeline to push container images and manage container environments.</p>
+<h3 id="required-role-assignments"><a class="header" href="#required-role-assignments">Required Role Assignments</a></h3>
+<p>Create two <code>azurerm_role_assignment</code> resources:</p>
+<h4 id="1-container-registry-push-access"><a class="header" href="#1-container-registry-push-access">1. Container Registry Push Access</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th>Value</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Role</strong></td><td><code>AcrPush</code></td><td>Allows pushing Docker images</td></tr>
+<tr><td><strong>Scope</strong></td><td>Container registry resource</td><td>The ACR to push images to</td></tr>
+<tr><td><strong>Principal</strong></td><td>GitHub CI service principal</td><td>The identity performing the action</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>e.g., key vault</td><td>Ensure proper creation order</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Purpose:</strong> Allows the pipeline to push Docker images to the container registry.</p>
+<h4 id="2-resource-group-management"><a class="header" href="#2-resource-group-management">2. Resource Group Management</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th>Value</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Role</strong></td><td><code>Contributor</code></td><td>Full management access</td></tr>
+<tr><td><strong>Scope</strong></td><td>Resource group</td><td>The resource group to manage</td></tr>
+<tr><td><strong>Principal</strong></td><td>GitHub CI service principal</td><td>The identity performing the action</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>e.g., key vault</td><td>Ensure proper creation order</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Purpose:</strong> Enables the pipeline to manage container apps and related resources within the resource group.</p>
+<hr>
+<h2 id="test-1"><a class="header" href="#test-1">Test</a></h2>
+<p><strong>Verification:</strong></p>
+<ul>
+<li>Navigate to your GitHub repository settings</li>
+<li>Check the <strong>Secrets and variables</strong> section under <strong>Actions</strong></li>
+<li>Verify that all secrets and variables have been populated correctly</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../analysis/deliverables/d_ape_hw.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../../analysis/deliverables/d_ape_hcb.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../analysis/deliverables/d_ape_hw.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../../analysis/deliverables/d_ape_hcb.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-c2a407aa.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../project-doc-custom-cae62dd9.js"></script>
+        <script src="../../mermaid-a19b8af3.min.js"></script>
+        <script src="../../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

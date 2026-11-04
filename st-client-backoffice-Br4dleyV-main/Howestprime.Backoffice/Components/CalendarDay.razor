@@ -1,0 +1,65 @@
+@using Howestprime.Movies.ApiClient.Responses
+
+<div class="day-cell"
+     style="grid-column-start: @GridColumn; grid-row-start: @GridRow;"
+     @onclick="() => OnDaySelected.InvokeAsync(Day)">
+    <span class="date-number">@Day</span>
+
+    @foreach (var timeSlot in TimeSlots)
+    {
+        var movieEvent = GetMovieEventForTimeSlot(timeSlot);
+        <CalendarTimeSlot TimeSlot="timeSlot" MovieEvent="movieEvent" />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public required int Day { get; set; }
+
+    [Parameter]
+    public required DateTime CurrentMonth { get; set; }
+
+    [Parameter]
+    public required List<string> TimeSlots { get; set; } = [];
+
+    [Parameter]
+    public required List<MovieEvent> MovieEvents { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<int> OnDaySelected { get; set; }
+
+    private int GridColumn
+    {
+        get
+        {
+            var firstDayOfMonth = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
+            var firstDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+            var dayPosition = firstDayOfWeek + (Day - 1);
+            return (dayPosition % 7) + 1;
+        }
+    }
+
+    private int GridRow
+    {
+        get
+        {
+            var firstDayOfMonth = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
+            var firstDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+            var dayPosition = firstDayOfWeek + (Day - 1);
+            return (dayPosition / 7) + 2;
+        }
+    }
+
+    private MovieEvent? GetMovieEventForTimeSlot(string timeSlot)
+    {
+        var hour = int.Parse(timeSlot.Split(':')[0]);
+        var minute = int.Parse(timeSlot.Split(':')[1]);
+
+        return MovieEvents.FirstOrDefault(e =>
+            e.Showtime.Year == CurrentMonth.Year &&
+            e.Showtime.Month == CurrentMonth.Month &&
+            e.Showtime.Day == Day &&
+            e.Showtime.Hour == hour &&
+            e.Showtime.Minute == minute);
+    }
+}

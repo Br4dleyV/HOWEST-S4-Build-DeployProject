@@ -1,0 +1,710 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>FR01: Howestprime Wide - Build and Deploy Project</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-2459343d.css">
+        <link rel="stylesheet" href="../../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../project-doc-custom-e929efa1.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex-a4a4204a.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-3c4fab81.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Build and Deploy Project</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="howestprime-wide"><a class="header" href="#howestprime-wide">Howestprime Wide</a></h1>
+<p>Let’s start with the Howestprime-wide resources. These resources are shared across the entire project and are used by all microservices and applications. The following sections will guide you through the process of creating these resources using Terraform.</p>
+<blockquote>
+<p><strong>READING GUIDE</strong>:</p>
+<ul>
+<li><strong>Required</strong> settings are explicitly called out in each section.</li>
+<li><strong>Test</strong> sections indicate where to validate your progress.</li>
+<li><strong>Notes / hints / reminders</strong> highlight common pitfalls.</li>
+</ul>
+</blockquote>
+<h2 id="high-level-overview"><a class="header" href="#high-level-overview">High-Level Overview</a></h2>
+<ul>
+<li>Scaffolding and creating the resource group
+<ul>
+<li>Initial file creation and configuration</li>
+</ul>
+</li>
+<li>Creating the key vault
+<ul>
+<li>Used to securely store secrets and other sensitive information for Howestprime.</li>
+</ul>
+</li>
+<li>Creating the container registry
+<ul>
+<li>Stores Docker images for the applications to be containerized.</li>
+</ul>
+</li>
+<li>Creating the message broker
+<ul>
+<li>Facilitates event communication between the different microservices.</li>
+</ul>
+</li>
+<li>Log Analytics
+<ul>
+<li>The workspace for storing logs and metrics from various project resources.</li>
+</ul>
+</li>
+<li>Container environment
+<ul>
+<li>The environment where microservices will run. Azure provides a serverless container environment called Azure Container Apps, which is used to host these microservices.</li>
+</ul>
+</li>
+<li>GitHub build pipeline service principal
+<ul>
+<li>GitHub Actions will be configured to deploy microservices to the container environment. This requires a service principal to allow the pipeline to access the container registry and deploy to Azure.</li>
+</ul>
+</li>
+<li>Managed identity for reading the key vault
+<ul>
+<li>A managed identity in Azure enables <strong>Azure services</strong> to authenticate to other <strong>Azure services</strong> without managing credentials. This identity will be used by the microservices to securely access the key vault and other resources.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="scaffolding-and-creating-the-resource-group"><a class="header" href="#scaffolding-and-creating-the-resource-group">Scaffolding and Creating the Resource Group</a></h2>
+<h3 id="create-the-following-files"><a class="header" href="#create-the-following-files">Create the following files:</a></h3>
+<ul>
+<li><code>main.tf</code>: Main file, contains the entry point for the Terraform code.</li>
+<li><code>variables.tf</code>: Contains the variables used in the Terraform code.</li>
+<li><code>variables.auto.tfvars</code>: Populates the variables with concrete values.</li>
+<li><code>.gitignore</code>: Ignore the sensitive file and other unnecessary files.</li>
+<li><code>variables.sensitive.auto.tfvars</code>: Contains values for variables that are sensitive and should not be exposed in the code. This file is ignored by git and should not be shared with anyone.</li>
+</ul>
+<h3 id="create-the-terraform-config-block-with-azurerm-provider-in-the-maintf-file"><a class="header" href="#create-the-terraform-config-block-with-azurerm-provider-in-the-maintf-file">Create the terraform config block with azurerm provider in the <code>main.tf</code> file.</a></h3>
+<ul>
+<li>
+<p>Create a terraform block to specify the required version of Terraform and the required providers. In this case, we will use the <code>azurerm</code> provider to manage Azure resources.</p>
+<ul>
+<li>Terraform required version: 1.14.5</li>
+<li>AzureRM provider version: 4.61.0</li>
+</ul>
+</li>
+<li>
+<p>Now create both provider blocks in the <code>main.tf</code> file.
+Configure both providers in <code>main.tf</code>.</p>
+<ul>
+<li>Leave the values for the provider configuration empty for now. We will fill them in later when we create the variables and populate them with values.</li>
+</ul>
+</li>
+</ul>
+<p>Use these requirements:</p>
+<blockquote>
+<p><strong>REQUIRED</strong> provider configuration checklist:</p>
+</blockquote>
+<ul>
+<li>Add an <code>azurerm</code> provider block.</li>
+<li>Read <code>subscription_id</code>, <code>tenant_id</code>, <code>client_id</code>, and <code>client_secret</code>.</li>
+<li>Add a <code>features</code> block.</li>
+<li>Inside <code>features</code>, enable the key vault destroy purge settings (<code>purge_soft_delete_on_destroy</code> and <code>purge_soft_deleted_secrets_on_destroy</code>).</li>
+</ul>
+<p>The <code>subscription_id</code> value can stay unset until the next steps where you define and populate the variables.</p>
+<h3 id="initialize-the-terraform-project"><a class="header" href="#initialize-the-terraform-project">Initialize the Terraform project</a></h3>
+<pre><code class="language-bash">terraform init
+</code></pre>
+<p>This will download the necessary providers and set up the backend for state management.</p>
+<blockquote>
+<p><strong>NOTE</strong>: All generated files should be in the <code>.gitignore</code>.</p>
+</blockquote>
+<h3 id="create-subscription-and-tenant-id-variables"><a class="header" href="#create-subscription-and-tenant-id-variables">Create subscription and tenant ID variables</a></h3>
+<ul>
+<li>Create variables in <code>variables.tf</code> to hold the subscription ID and tenant ID.
+<ul>
+<li>Example name for subscription ID: <code>howestprime_subscription_id</code>.</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>HINT</strong>: Think very carefully about the names of your variables. A good variable name should be descriptive and indicate what the variable is used for. This will make it easier to understand the code and maintain it in the future. There will be a lot of variables in this project, so it’s important to have a clear naming convention.</p>
+</blockquote>
+<ul>
+<li>
+<p><code>variables.tf</code> only contains the variable definitions. The values for these variables should be provided in the <code>variables.auto.tfvars</code> or <code>variables.sensitive.auto.tfvars</code> file. The <code>variables.auto.tfvars</code> file is used for non-sensitive variables, while the <code>variables.sensitive.auto.tfvars</code> file is used for sensitive variables. The <code>variables.sensitive.auto.tfvars</code> file should be ignored by git to prevent sensitive information from being exposed.</p>
+<ul>
+<li>Provide values for the following variables:
+<ul>
+<li><code>howestprime_subscription_id</code></li>
+<li><code>howestprime_tenant_id</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Assign these variables to the azurerm provider in the <code>main.tf</code> file.</p>
+</li>
+<li>
+<p>Make sure the sensitive file is ignored by git</p>
+</li>
+</ul>
+<h3 id="create-a-service-principal-for-terraform"><a class="header" href="#create-a-service-principal-for-terraform">Create a service principal for Terraform</a></h3>
+<p>Because Terraform needs to authenticate to Azure to manage resources, we need to create a service principal that Terraform can use for authentication. This service principal will be used in the provider configuration to allow Terraform to manage resources in Azure.</p>
+<ul>
+<li>First, create <code>service_principal_terraform_client_id</code>, <code>service_principal_terraform_secret</code> and <code>service_principal_terraform_sp_id (this is the objectID)</code> variables in <code>variables.tf</code>.</li>
+<li>Next, create a service principal in <strong>Azure Portal</strong> that will be used to authenticate Terraform. This service principal should have the following permissions:
+<ul>
+<li>Owner role on the subscription</li>
+<li>Role Based Access Control Administrator</li>
+</ul>
+</li>
+<li>In Entra ID assign the role <strong>application administrator</strong> to the service principal. By the end of this tutorial, you should know why this is needed.
+<ul>
+<li>Through Entra ID &gt; Roles and administrators &gt; search for “application administrator” &gt; click on the role &gt; click on “Add assignments” &gt; search for the service principal &gt; select the service principal &gt; click on “Add”.</li>
+</ul>
+</li>
+<li>Assing values to the new variables in the <code>variables.sensitive.auto.tfvars</code> file.</li>
+</ul>
+<h3 id="create-a-resource-group"><a class="header" href="#create-a-resource-group">Create a resource group</a></h3>
+<p>In this project, we will create a resource group that will be used to hold all the resources for the Howestprime project.</p>
+<ul>
+<li>First, create a variable in <code>variables.tf</code> to hold the location of all future resources.</li>
+<li>Provide a value for this variable in the <code>variables.auto.tfvars</code> (not sensitive) file</li>
+<li>Create another variable (dictionary) in <code>variables.tf</code> to hold the names of all resources
+<ul>
+<li>This will make it easier to manage the names of the resources and ensure consistency across the project. It also allows you to easily change the name of a resource in one place if needed.</li>
+<li>This a <strong>map</strong> or <strong>dictionary</strong> variable.</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-hcl">  variable "resource_names" {
+  description = "Map of resource names to assign to the resources."
+  type        = map(string)
+  }
+</code></pre>
+<ul>
+<li>Add an entry to this map variable in the <code>variables.auto.tfvars</code> file.</li>
+</ul>
+<pre><code class="language-hcl"># Example
+# mapKey = the identifier of the resource in the Terraform code
+# mapValue = the name of the resource in Azure
+resource_names = {
+  mapKey = mapValue
+  azurerm_resource_group_howestprime                = "howestprime-wide-p-arg"
+}
+</code></pre>
+<ul>
+<li>Now, create the resource group in a new file called with example name <code>howestprime_wide_resource_group.tf</code>.
+<ul>
+<li>Use clear and meaningful names for all files. In this case, the word <strong>wide</strong> indicates that this resource is used across all resources in the project.</li>
+</ul>
+</li>
+</ul>
+<h3 id="test-the-resource-group-creation"><a class="header" href="#test-the-resource-group-creation">Test the resource group creation</a></h3>
+<ul>
+<li>Run the following command to validate the resource group configuration:</li>
+</ul>
+<pre><code class="language-bash">terraform plan
+</code></pre>
+<ul>
+<li>If the configuration looks correct, execute the following command to provision the resource group:</li>
+</ul>
+<pre><code class="language-bash">terraform apply
+</code></pre>
+<ul>
+<li>Verify the resource group was created successfully through az CLI or the Azure portal</li>
+</ul>
+<pre><code class="language-bash">az group list
+</code></pre>
+<blockquote>
+<p><strong>REMINDER</strong>: Do not edit Azure resource properties through the Azure portal. This can cause issues with Terraform state management. Always make changes to resources through Terraform to ensure the state file is up to date and consistent with the actual resources in Azure.</p>
+</blockquote>
+<hr>
+<h2 id="creating-the-key-vault"><a class="header" href="#creating-the-key-vault">Creating the Key Vault</a></h2>
+<p>Another resource used across the whole project is the key vault. This resource is used to store secrets and other sensitive information for Howestprime.</p>
+<h3 id="the-key-vault"><a class="header" href="#the-key-vault">The Key Vault</a></h3>
+<ul>
+<li>Add an entry in the <code>resource_names</code> variable in <code>variables.auto.tfvars</code> for the key vault name.</li>
+<li>Create a new terraform file for the keyvault.</li>
+<li>Add a Key Vault resource with at least the following properties configured:
+<ul>
+<li><strong>Required properties</strong>:</li>
+<li><strong>Remember</strong>: many properties like <code>resource_group_name</code>, <code>location</code> can be fetched from the resource itself by using the resource reference, e.g., <code>azurerm_resource_group.howestprime.name</code>.</li>
+<li>name, resource group, location, tenant ID</li>
+<li>standard SKU</li>
+<li>soft delete retention set to 7 days</li>
+<li>purge protection disabled</li>
+<li>disk encryption enabled</li>
+<li>deployment and template deployment enabled</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>NOTE</strong>: Make sure you understand the impact of the properties you set.</p>
+</blockquote>
+<h3 id="terraform-needs-an-extra-key-vault-role"><a class="header" href="#terraform-needs-an-extra-key-vault-role">Terraform needs an extra Key Vault role</a></h3>
+<ul>
+<li>Extend <code>howestprime_wide_keyvault.tf</code> with another role assignment for the Terraform service principal.
+<ul>
+<li>Purpose: allow Terraform to manage the key vault itself (e.g., update access policies, delete the key vault).</li>
+<li>Role: <code>Key Vault Administrator</code>.</li>
+<li>Scope: the Howestprime key vault.</li>
+<li>Principal: Terraform service principal ID (object ID).</li>
+<li>Add an explicit dependency on the key vault resource.
+<ul>
+<li>This ensures that the role assignment is created only after the key vault is created, preventing potential issues with resource creation order.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>The principal ID</strong> is the <strong>Object ID</strong> of the <strong>service principal</strong> NOT the Object ID of the App Registration.</p>
+<blockquote>
+<p><strong>WARNING</strong>: Do <strong>not</strong> use the App Registration Object ID here.</p>
+</blockquote>
+<ul>
+<li>Subscriptions &gt; IAccess control (IAM) &gt; Role assignments &gt; search for the service principal &gt; click on the service principal &gt; copy the Object ID.</li>
+</ul>
+<h3 id="test-the-key-vault-creation"><a class="header" href="#test-the-key-vault-creation">Test the key vault creation</a></h3>
+<p>Plan and apply the Terraform configuration to create the key vault. Verify the key vault was created successfully through az CLI or the Azure portal.</p>
+<hr>
+<h2 id="creating-the-container-registry"><a class="header" href="#creating-the-container-registry">Creating the Container Registry</a></h2>
+<p>The container registry is used to store Docker images for the applications we will containerize. The container registry is a private registry for storing and managing Docker images.</p>
+<ul>
+<li>Add an entry in the <code>resource_names</code> variable in <code>variables.auto.tfvars</code> for the container registry name.
+<ul>
+<li>No spaces or special characters are allowed in the name of the container registry. The name must be unique across all Azure container registries.</li>
+</ul>
+</li>
+<li>Create a new terraform file for the container registry.</li>
+<li>Add the container registry resource to this file.</li>
+<li>Required settings for the container registry resource:
+<ul>
+<li><strong>Name</strong> (this name is unique across Azure, so choose a name that is unlikely to be taken)</li>
+<li><strong>Resource group</strong> and <strong>location</strong> from your existing setup</li>
+<li><strong>SKU</strong> set to <code>Basic</code></li>
+<li><strong>Admin user</strong> disabled
+<ul>
+<li>Know why we do this.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="test-the-container-registry-creation"><a class="header" href="#test-the-container-registry-creation">Test the container registry creation</a></h3>
+<p>Plan and apply the Terraform configuration to create the container registry. Verify the container registry was created successfully through az CLI or the Azure portal.</p>
+<hr>
+<h2 id="creating-the-message-broker"><a class="header" href="#creating-the-message-broker">Creating the Message Broker</a></h2>
+<p>The message broker is used to send events between the movies and ticketing services. This project uses a LavinMQ message broker from the cloud provider CloudAMQP.</p>
+<ul>
+<li>Create an account on CloudAMQP and create an API token with full access so the Terraform code can manage the message broker.</li>
+<li>Add a new provider to the required providers in the <code>main.tf</code> file. The provider is called <code>cloudamqp</code> and is used to manage the message broker in the cloud.
+<ul>
+<li>Use version “~&gt;1.42” of the provider.</li>
+</ul>
+</li>
+<li>Add the provider configuration to the <code>main.tf</code> file. The provider requires an API token for authentication, which should be read from a sensitive variable.</li>
+<li>Add an entry in the <code>resource_names</code> map variable for the message broker name.</li>
+<li>Create a new terraform file and create the message broker resource.</li>
+<li>Required settings for the message broker resource:
+<ul>
+<li><strong>Name</strong> from <code>resource_names</code></li>
+<li><strong>Plan</strong> set to <code>lemming</code></li>
+<li><strong>Region</strong> set to <code>amazon-web-services::eu-west-1</code>
+<ul>
+<li>Or choose another region if you prefer.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Later, you will need information about this newly created message broker. This information can always be retrieved by adding a <strong>data block</strong> to the messagebroker terraform file.</li>
+</ul>
+<pre><code class="language-hcl"># Example: data block to retrieve the credentials of the message broker
+data "cloudamqp_credentials" "local-admin" {
+  instance_id = cloudamqp_instance.howestprime.id
+}
+</code></pre>
+<ul>
+<li>Add the messagebroker password to the key vault. This way, other resources can access the message broker password securely. This way, the service principal has access to the key vault and can add the secret.
+<ul>
+<li>Terrafrom resource ID: “azurerm_key_vault_secret”</li>
+<li>Required settings for the Key Vault secret resource:
+<ul>
+<li><strong>Secret name</strong> that clearly identifies the message broker credential</li>
+<li><strong>Secret value</strong> from the CloudAMQP credentials data source</li>
+<li><strong>Key Vault ID</strong> referencing your Howestprime key vault</li>
+<li>Explicit <code>depends_on</code> on the Terraform service principal Key Vault role assignment
+<ul>
+<li>The role <code>Key Vault Administrator</code> must be assigned to the Terraform service principal before it can add secrets to the key vault. By adding an explicit dependency, you ensure that the secret is only created after the role assignment is in place, preventing potential issues with resource creation order.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Because the provider was updated, reinitialize the Terraform project. This will download the new provider and update the state file.</li>
+</ul>
+<pre><code class="language-bash"># Reinitialize the Terraform project
+terraform init -upgrade
+</code></pre>
+<h3 id="test-the-message-broker-creation"><a class="header" href="#test-the-message-broker-creation">Test the message broker creation</a></h3>
+<p>Plan and apply the Terraform configuration to create the message broker. Verify the message broker was created successfully (cloud amqp dashboard) and check in the Azure portal that the secret with the message broker credentials was added to the key vault.</p>
+<blockquote>
+<p><strong>NOTE</strong>: If you cannot view the secrets in the key vault, add the role <code>Key Vault Secrets Officer</code> to your user account for the key vault. This will allow you to view the secrets in the key vault through the Azure portal. This is needed for testing purposes, but in a production environment, you would not give this role to a user account. Instead, you would use a managed identity or service principal with the appropriate permissions to access the secrets.</p>
+</blockquote>
+<hr>
+<h2 id="log-analytics"><a class="header" href="#log-analytics">Log Analytics</a></h2>
+<p>The Log Analytics workspace is used to store logs and metrics for the different resources in the project. This resource is used to monitor the various resources and troubleshoot issues.</p>
+<ul>
+<li>Add an entry in the <code>resource_names</code> map for the log analytics workspace name.</li>
+<li>Create a new terraform file called <code>howestprime_wide_log_analytics.tf</code> and create the workspace resource.
+<ul>
+<li>Only the name, resource group and location are required to create the workspace. You can use the existing variables for the resource group and location.</li>
+</ul>
+</li>
+</ul>
+<h3 id="test-the-log-analytics-workspace-creation"><a class="header" href="#test-the-log-analytics-workspace-creation">Test the log analytics workspace creation</a></h3>
+<p>Plan and apply the Terraform configuration to create the log analytics workspace. Verify the workspace was created successfully through az CLI or the Azure portal.</p>
+<pre><code class="language-bash">az monitor log-analytics workspace list
+</code></pre>
+<hr>
+<h2 id="container-environment"><a class="header" href="#container-environment">Container Environment</a></h2>
+<p>The container environment will be used to run the different container services (movies and ticketing). Azure provides its own container environment called Azure Container Apps, a serverless container environment for running distributed services.</p>
+<ul>
+<li>
+<p>Add an entry in the <code>resource_names</code> map for the container environment name.</p>
+</li>
+<li>
+<p>Create a new terraform file and create the container environment resource.</p>
+</li>
+<li>
+<p>Required settings for the container environment resource:</p>
+<ul>
+<li><strong>Name</strong> from <code>resource_names</code></li>
+<li><strong>Resource group</strong> and <strong>location</strong> from your existing setup</li>
+<li><strong>Log Analytics workspace ID</strong> from the workspace resource</li>
+</ul>
+</li>
+<li>
+<p>The Azure Container Apps environment requires an extra resource provider to be registered. Update the <strong>azurerm provider</strong> in the <code>main.tf</code> file by adding the following property:</p>
+</li>
+</ul>
+<pre><code class="language-hcl">resource_providers_to_register = [ "Microsoft.App" ]
+</code></pre>
+<ul>
+<li>This property is needed because the Azure Container Apps resource provider is not registered by default in Azure. By adding this property, you ensure that the provider is registered when you run Terraform, allowing you to create Azure Container Apps resources without manual intervention.</li>
+</ul>
+<blockquote>
+<p><strong>NOTE</strong>: If you get a region not allowed error when creating the container environment, check your allowed region through Policies &gt; Assignments &gt; Allowed locations. Choose another one of the allowed regions and try again.</p>
+</blockquote>
+<h3 id="test-the-container-environment-creation"><a class="header" href="#test-the-container-environment-creation">Test the container environment creation</a></h3>
+<p>Plan and apply the Terraform configuration to create the container environment. Verify the container environment was created successfully through az CLI or the Azure portal.</p>
+<hr>
+<h2 id="create-a-github-build-pipeline-service-principal"><a class="header" href="#create-a-github-build-pipeline-service-principal">Create a GitHub Build Pipeline Service Principal</a></h2>
+<p>The GitHub build pipeline service principal is used to authenticate GitHub Actions against Azure.</p>
+<ul>
+<li>
+<p>Create a terreform file and create the service principal:</p>
+</li>
+<li>
+<p>Start by creating a new Azure Entra application for the GitHub CI/CD integration.</p>
+<ul>
+<li>Terrafrom resource ID: <code>azuread_application</code></li>
+<li>Give the application a clear and recognizable display name.</li>
+</ul>
+</li>
+<li>
+<p>Create a time rotating resource</p>
+<ul>
+<li>Terraform resource ID: <code>time_rotating</code></li>
+<li>Setting: rotating_days set to 180 days</li>
+</ul>
+</li>
+<li>
+<p>Create a client secret for that application so automated deployments can authenticate.</p>
+<ul>
+<li>Terrafrom resource ID: <code>azuread_application_password</code></li>
+<li>Link the secret to a rotation trigger from above so Terraform can replace it automatically.</li>
+<li>Configure the rotation interval to 180 days.</li>
+</ul>
+</li>
+<li>
+<p>Create a new service principal linked to the GitHub CI/CD application.</p>
+<ul>
+<li>Terrafrom resource ID: <code>azuread_service_principal</code></li>
+<li>Use the application’s client ID to associate both identities.
+<ul>
+<li>azuread_application.NAME_OF_YOUR_RESOURCE.application_id</li>
+</ul>
+</li>
+<li>Set the Terraform service principal as owner so Terraform can fully manage this identity lifecycle.</li>
+</ul>
+</li>
+</ul>
+<h3 id="test-the-github-build-pipeline-service-principal-creation"><a class="header" href="#test-the-github-build-pipeline-service-principal-creation">Test the GitHub build pipeline service principal creation</a></h3>
+<p>Plan and apply the Terraform configuration to create the service principal. Verify the service principal was created successfully</p>
+<p>In the portal, navigate to Entra ID &gt; App registrations &gt; search for the application name</p>
+<hr>
+<h2 id="create-a-managed-identity-for-reading-the-key-vault"><a class="header" href="#create-a-managed-identity-for-reading-the-key-vault">Create a Managed Identity for Reading the Key Vault</a></h2>
+<p>A managed identity in Azure allows <strong>Azure services</strong> to securely authenticate to other <strong>Azure services</strong> without the need to manage credentials. In this project, a managed identity will be created for the services (movies &amp; ticketing) to access the key vault and other resources securely.</p>
+<p>Be sure you understand the distinction between a managed identity and a service principal.</p>
+<blockquote>
+<p><strong>IMPORTANT</strong>: A managed identity and a service principal are related concepts, but they are <strong>not</strong> interchangeable.</p>
+</blockquote>
+<ul>
+<li>
+<p>Add an entry to the <code>resource_names</code> map for the managed identity’s name.</p>
+</li>
+<li>
+<p>Create a new Terraform file for the managed identity and define a user-assigned identity.</p>
+<ul>
+<li>Terraform resource ID: <code>azurerm_user_assigned_identity</code></li>
+<li>Set the location to your shared project region.</li>
+<li>Use the managed identity name from the <code>resource_names</code> map.</li>
+<li>Reference the existing Howestprime resource group.</li>
+</ul>
+</li>
+<li>
+<p>Assign the “Key Vault Secrets Officer” role to the managed identity on the Howestprime key vault by creating a role-assignment resource.</p>
+<ul>
+<li>Terraform resource ID: <code>azurerm_role_assignment</code></li>
+<li>Scope: the Howestprime key vault resource.</li>
+<li>Role definition: <code>Key Vault Secrets Officer</code>.</li>
+<li>Principal ID: the managed identity principal ID (not the application ID).
+<ul>
+<li>azurerm_user_assigned_identity.NAME_OF_YOUR_RESOURCE.principal_id</li>
+</ul>
+</li>
+<li>Add an explicit dependency on the key vault so role assignment happens after key vault creation.</li>
+</ul>
+</li>
+</ul>
+<h3 id="test-the-managed-identity-creation"><a class="header" href="#test-the-managed-identity-creation">Test the managed identity creation</a></h3>
+<p>Plan and apply the Terraform configuration to create the managed identity. Verify the managed identity was created successfully</p>
+<h2 id="test"><a class="header" href="#test">Test</a></h2>
+<p>It should be possible to completely destroy the resources and recreate them without any issues.</p>
+<blockquote>
+<p><strong>SUCCESS CRITERION</strong>: <code>terraform destroy</code> followed by <code>terraform apply</code> should complete without manual fixes.</p>
+</blockquote>
+<blockquote>
+<p><strong>WARNING</strong>: Don’t forget to clean up the resources after testing to avoid unnecessary costs.</p>
+</blockquote>
+<h2 id="resource-screenshot"><a class="header" href="#resource-screenshot">Resource screenshot</a></h2>
+<p>Your resource group should look something like this in the Azure portal:
+<img src="../../images/resource_view_1.png" alt="Azure portal screenshot of the resource group with the created resources"></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../analysis/deliverables/d_ape.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../../analysis/deliverables/d_ape_hmm.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../analysis/deliverables/d_ape.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../../analysis/deliverables/d_ape_hmm.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-c2a407aa.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../project-doc-custom-cae62dd9.js"></script>
+        <script src="../../mermaid-a19b8af3.min.js"></script>
+        <script src="../../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

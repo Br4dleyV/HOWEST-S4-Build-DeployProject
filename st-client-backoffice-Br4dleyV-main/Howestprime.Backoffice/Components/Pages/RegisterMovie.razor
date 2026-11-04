@@ -1,0 +1,17 @@
+﻿@page "/register"
+@rendermode InteractiveServer
+@using Howestprime.Backoffice.Components.RegisterMovie
+
+<main class="app-content">
+    <div class="register-movie-container">
+        <div class="form-container">
+            <RegisterMovieForm Model="model"
+                               IsSubmitting="isSubmitting"
+                               OnSubmit="RegisterMovieAsync"
+                               PosterUrlChanged="OnPosterUrlChanged" />
+            <RegisterMovieFeedback ErrorMessage="@errorMessage" SuccessMessage="@successMessage" />
+        </div>
+
+        <PosterPreview PosterUrl="@model.PosterUrl" />
+    </div>
+</main>

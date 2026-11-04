@@ -1,0 +1,304 @@
+{
+	"info": {
+		"_postman_id": "howestprime-movies-api",
+		"name": "Howestprime Movies API",
+		"description": "Complete API collection for testing the Howestprime Movies microservice. Includes all endpoints for managing movies, movie events, and schedules.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Movie Catalog",
+			"item": [
+				{
+					"name": "Register Movie",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"The Shawshank Redemption\",\n  \"description\": \"Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.\",\n  \"releaseYear\": 1994,\n  \"duration\": 142,\n  \"genres\": [\"Drama\", \"Crime\"],\n  \"actors\": [\"Tim Robbins\", \"Morgan Freeman\", \"Bob Gunton\"],\n  \"ageRating\": 16,\n  \"posterUrl\": \"https://example.com/posters/shawshank.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/movie-catalog",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"movie-catalog"
+							]
+						},
+						"description": "Register a new movie in the catalog."
+					},
+					"response": []
+				},
+				{
+					"name": "Search Movie Catalog",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-role",
+								"value": "admin",
+								"description": "Required header for user role"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/movie-catalog",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"movie-catalog"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "Shawshank",
+									"disabled": true,
+									"description": "Search by movie title"
+								},
+								{
+									"key": "genres",
+									"value": "Drama",
+									"disabled": true,
+									"description": "Filter by genre"
+								}
+							]
+						},
+						"description": "Search the movie catalog by title and/or genres. You can enable/disable query parameters as needed."
+					},
+					"response": []
+				},
+				{
+					"name": "Find Movie by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-role",
+								"value": "admin",
+								"description": "Required header for user role"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/movie-catalog/:movieId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"movie-catalog",
+								":movieId"
+							],
+							"variable": [
+								{
+									"key": "movieId",
+									"value": "00000000-0000-0000-0000-000000000000",
+									"description": "UUID of the movie (replace with actual ID)"
+								}
+							]
+						},
+						"description": "Find a movie in the catalog by its ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Change Movie Details",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"The Shawshank Redemption\",\n  \"description\": \"Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.\",\n  \"releaseYear\": 1994,\n  \"duration\": 142,\n  \"genres\": [\"Drama\", \"Crime\"],\n  \"actors\": [\"Tim Robbins\", \"Morgan Freeman\", \"Bob Gunton\"],\n  \"ageRating\": 16,\n  \"posterUrl\": \"https://example.com/posters/shawshank.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/movie-catalog/:movieId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"movie-catalog",
+								":movieId"
+							],
+							"variable": [
+								{
+									"key": "movieId",
+									"value": "00000000-0000-0000-0000-000000000000",
+									"description": "UUID of the movie (replace with actual ID)"
+								}
+							]
+						},
+						"description": "Change the details of an existing movie in the catalog. All movie detail fields must be supplied, even if only one is changed."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for managing the movie catalog"
+		},
+		{
+			"name": "Movie Events",
+			"item": [
+				{
+					"name": "Schedule Movie Event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"movieId\": \"00000000-0000-0000-0000-000000000000\",\n  \"roomId\": \"00000000-0000-0000-0000-000000000000\",\n  \"showtime\": \"2026-06-15T20:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/movie-events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"movie-events"
+							]
+						},
+						"description": "Schedule a new movie event (showtime). Replace the UUIDs with actual movie and room IDs."
+					},
+					"response": []
+				},
+				{
+					"name": "Find Movie Events for Month",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/movie-events?month=6&year=2026",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"movie-events"
+							],
+							"query": [
+								{
+									"key": "month",
+									"value": "6",
+									"description": "Month (1-12)"
+								},
+								{
+									"key": "year",
+									"value": "2026",
+									"description": "Year"
+								}
+							]
+						},
+						"description": "Find all movie events scheduled for a given month and year."
+					},
+					"response": []
+				},
+				{
+					"name": "Book Movie Event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"standardVisitors\": 2,\n  \"discountVisitors\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/movie-events/:movieEventId/bookings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"movie-events",
+								":movieEventId",
+								"bookings"
+							],
+							"variable": [
+								{
+									"key": "movieEventId",
+									"value": "00000000-0000-0000-0000-000000000000",
+									"description": "UUID of the movie event (replace with actual ID)"
+								}
+							]
+						},
+						"description": "Book a movie event for a given number of standard and discount visitors."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for managing movie events (showtimes) and bookings"
+		},
+		{
+			"name": "Schedule",
+			"item": [
+				{
+					"name": "Get Howestprime Schedule",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/howestprime-schedule",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"howestprime-schedule"
+							]
+						},
+						"description": "Find the Howestprime movie schedule for the next 14 days."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for retrieving the movie schedule"
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"health"
+					]
+				},
+				"description": "Health check endpoint to verify the API is running."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+}
